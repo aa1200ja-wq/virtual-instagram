@@ -8,10 +8,16 @@
   const state = loadState();
   let active = data.characters.find((item) => item.id === state.activeId) || data.characters[0];
 
+  removeUnusedPanels();
   setupStories();
   setupPosts();
   createPostModal();
   render();
+
+  function removeUnusedPanels() {
+    document.querySelector('.header__search')?.remove();
+    document.querySelector('.side-menu')?.remove();
+  }
 
   function loadState() {
     try {
@@ -52,7 +58,8 @@
       const likeButton = post.querySelector('.post__buttons .post__button');
       if (likeButton) {
         likeButton.classList.add('sim-like-button');
-        likeButton.setAttribute('aria-label', 'Like post');
+        likeButton.setAttribute('aria-label', '按讚');
+        likeButton._simOutlineIcon = likeButton.innerHTML;
         likeButton.addEventListener('click', () => toggleLike(index));
       }
       post.querySelectorAll('.post__avatar, .post__user').forEach((link) => {
@@ -99,7 +106,7 @@
 
       post.querySelectorAll('.post__media').forEach((media) => {
         media.src = postData.image;
-        media.alt = active.username + ' post';
+        media.alt = active.username + ' 的貼文';
       });
 
       updateLikeUI(post, index, postData.likes);
@@ -136,24 +143,20 @@
     const button = post.querySelector('.sim-like-button');
     if (button) {
       button.classList.toggle('sim-liked', liked);
-      const path = button.querySelector('path');
-      if (path) {
-        path.setAttribute('fill', liked ? 'var(--like)' : 'var(--text-dark)');
-        path.setAttribute('stroke', liked ? 'var(--like)' : 'var(--text-dark)');
-      }
+      button.innerHTML = liked ? solidHeartIcon() : button._simOutlineIcon;
     }
     const likes = post.querySelector('.post__likes span');
-    if (likes) likes.textContent = (baseLikes + (liked ? 1 : 0)).toLocaleString() + ' likes';
+    if (likes) likes.textContent = (baseLikes + (liked ? 1 : 0)).toLocaleString() + ' 個讚';
   }
 
   function createPostModal() {
     const modal = document.createElement('div');
     modal.className = 'sim-modal';
     modal.innerHTML = `
-      <button class="sim-modal__backdrop" aria-label="Close post"></button>
+      <button class="sim-modal__backdrop" aria-label="關閉貼文"></button>
       <section class="sim-modal__panel" role="dialog" aria-modal="true">
-        <button class="sim-modal__close" aria-label="Close post">×</button>
-        <img class="sim-modal__image" alt="Post preview" />
+        <button class="sim-modal__close" aria-label="關閉貼文">×</button>
+        <img class="sim-modal__image" alt="貼文預覽" />
         <div class="sim-modal__body">
           <div class="sim-modal__user">
             <img class="sim-modal__avatar" alt="" />
@@ -196,6 +199,17 @@
     like.classList.toggle('sim-liked', liked);
     like.firstChild.textContent = liked ? '♥ ' : '♡ ';
     like.querySelector('span').textContent = (postData.likes + (liked ? 1 : 0)).toLocaleString();
+  }
+
+  function solidHeartIcon() {
+    return `
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+          fill="var(--like)"
+        />
+      </svg>
+    `;
   }
 
   function closeModal() {
