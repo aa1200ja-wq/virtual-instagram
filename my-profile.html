@@ -66,43 +66,86 @@
           <p>當你分享相片後，就會顯示在個人檔案中。</p>
         </button>
       </section>
+      <nav class="me-bottom-nav" aria-label="主要導覽">
+        <button type="button">⌂</button>
+        <button type="button">▻</button>
+        <button type="button">⌁</button>
+        <button type="button">⌕</button>
+        <button class="me-bottom-nav__avatar" type="button"><img class="me-nav-avatar" alt="" /></button>
+      </nav>
     </main>
 
     <input class="me-file-input" type="file" accept="image/*" hidden />
 
-    <div class="me-composer" aria-hidden="true">
-      <button class="me-overlay" type="button" aria-label="關閉新增貼文"></button>
-      <section class="me-composer__panel" role="dialog" aria-modal="true">
-        <header class="me-composer__header">
-          <button class="me-composer__cancel" type="button">取消</button>
-          <strong>建立新貼文</strong>
-          <button class="me-composer__publish" type="button" disabled>分享</button>
-        </header>
-        <div class="me-composer__content">
-          <button class="me-composer__pick" type="button">
-            <span class="me-composer__pick-icon">▣</span>
-            <strong>從裝置選擇相片</strong>
-          </button>
-          <img class="me-composer__preview" alt="貼文預覽" hidden />
-          <textarea class="me-composer__caption" maxlength="500" placeholder="撰寫說明文字……" hidden></textarea>
-        </div>
+    <div class="create-sheet" aria-hidden="true">
+      <button class="screen-backdrop" type="button" aria-label="關閉建立選單"></button>
+      <section class="create-sheet__panel">
+        <div class="create-sheet__handle"></div>
+        <h2>建立</h2>
+        <button class="create-sheet__option" type="button" data-create-reel>
+          <span class="create-sheet__icon">▷</span><span>Reel</span>
+        </button>
+        <button class="create-sheet__option" type="button" data-create-post>
+          <span class="create-sheet__icon">▦</span><span>貼文</span>
+        </button>
       </section>
     </div>
 
-    <div class="me-post-modal" aria-hidden="true">
-      <button class="me-overlay" type="button" aria-label="關閉貼文"></button>
-      <article class="me-post-modal__panel">
-        <button class="me-post-modal__close" type="button" aria-label="關閉貼文">×</button>
-        <img class="me-post-modal__image" alt="貼文圖片" />
-        <div class="me-post-modal__info">
-          <div class="me-post-modal__user">
-            <img class="me-post-modal__avatar" alt="" />
-            <strong class="me-post-modal__username"></strong>
-          </div>
-          <p class="me-post-modal__caption"></p>
-          <span class="me-post-modal__date"></span>
-        </div>
-      </article>
-    </div>
+    <section class="post-editor" aria-hidden="true">
+      <header class="flow-topbar">
+        <button class="flow-close" type="button" aria-label="關閉">×</button>
+        <span></span>
+        <span></span>
+      </header>
+      <div class="post-editor__stage">
+        <img class="post-editor__image" alt="貼文預覽" />
+      </div>
+      <div class="post-editor__tools">
+        <button type="button"><strong>♫</strong><span>音訊</span></button>
+        <button type="button"><strong>Aa</strong><span>文字</span></button>
+        <button type="button"><strong>▣</strong><span>疊圖</span></button>
+        <button type="button"><strong>◉</strong><span>濾鏡</span></button>
+        <button type="button"><strong>☷</strong><span>編輯</span></button>
+      </div>
+      <button class="post-editor__next" type="button">下一步 →</button>
+    </section>
+
+    <section class="post-caption" aria-hidden="true">
+      <header class="caption-topbar">
+        <button class="caption-back" type="button" aria-label="返回">‹</button>
+        <strong>新貼文</strong>
+        <button class="caption-share" type="button">分享</button>
+      </header>
+      <div class="post-caption__content">
+        <img class="post-caption__image" alt="貼文預覽" />
+        <textarea class="post-caption__text" maxlength="500" placeholder="新增說明文字……"></textarea>
+      </div>
+    </section>
+
+    <section class="me-post-detail" aria-hidden="true">
+      <header class="detail-topbar">
+        <button class="detail-back" type="button" aria-label="返回">‹</button>
+        <div><strong>貼文</strong><span class="detail-account"></span></div>
+        <span></span>
+      </header>
+      <div class="detail-userbar">
+        <img class="detail-avatar" alt="" />
+        <strong class="detail-username"></strong>
+        <button type="button">☰</button>
+      </div>
+      <img class="detail-image" alt="貼文圖片" />
+      <div class="detail-actions">
+        <button type="button">♡</button>
+        <button type="button">◯</button>
+        <button type="button">↻</button>
+        <button type="button">⌁</button>
+        <button class="detail-actions__save" type="button">▱</button>
+      </div>
+      <div class="detail-caption"><strong class="detail-caption__user"></strong> <span class="detail-caption__text"></span></div>
+      <div class="detail-date"></div>
+    </section>
+
+    <div class="reel-toast" role="status" aria-live="polite">Reel 功能後續再做</div>
+
   </body>
 </html>
