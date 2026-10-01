@@ -5,33 +5,29 @@
 
   const DB_NAME = 'virtual-instagram-db';
   const STORE = 'my-posts';
-  let db;
-  let selectedFile = null;
-  let previewUrl = null;
+  let db, selectedFile, previewUrl;
   let renderedPosts = [];
 
   const grid = document.querySelector('.me-grid');
   const empty = document.querySelector('.me-empty');
   const fileInput = document.querySelector('.me-file-input');
-  const composer = document.querySelector('.me-composer');
-  const postModal = document.querySelector('.me-post-modal');
+  const sheet = document.querySelector('.create-sheet');
+  const editor = document.querySelector('.post-editor');
+  const caption = document.querySelector('.post-caption');
+  const detail = document.querySelector('.me-post-detail');
 
   init();
 
   async function init() {
     applyTheme();
     renderIdentity();
-    bindComposer();
-    bindPostModal();
+    bindUI();
     db = await openDb();
     await refreshPosts();
   }
 
   function applyTheme() {
-    document.documentElement.classList.toggle(
-      'darkTheme',
-      localStorage.getItem('theme') === 'dark'
-    );
+    document.documentElement.classList.toggle('darkTheme', localStorage.getItem('theme') === 'dark');
   }
 
   function renderIdentity() {
@@ -40,43 +36,42 @@
     setText('.me-bio-text', me.bio || '');
     setText('.me-followers', me.followers || '0');
     setText('.me-following', me.following || '0');
-    const avatar = document.querySelector('.me-avatar');
-    avatar.src = me.avatar;
-    avatar.alt = me.username + ' 的大頭貼';
-  }
-
-  function bindComposer() {
-    document.querySelector('[data-add-post]')?.addEventListener('click', openComposer);
-    document.querySelector('.me-empty__add')?.addEventListener('click', openComposer);
-    document.querySelector('.me-composer__pick')?.addEventListener('click', () => fileInput.click());
-    document.querySelector('.me-composer__cancel')?.addEventListener('click', closeComposer);
-    composer.querySelector('.me-overlay')?.addEventListener('click', closeComposer);
-    document.querySelector('.me-composer__publish')?.addEventListener('click', publishPost);
-    fileInput.addEventListener('change', handleFile);
-  }
-
-  function bindPostModal() {
-    postModal.querySelector('.me-overlay')?.addEventListener('click', closePost);
-    postModal.querySelector('.me-post-modal__close')?.addEventListener('click', closePost);
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
-        closeComposer();
-        closePost();
-      }
+    document.querySelectorAll('.me-avatar, .me-nav-avatar').forEach((img) => {
+      img.src = me.avatar;
+      img.alt = me.username + ' 的大頭貼';
     });
   }
 
-  function openComposer() {
-    composer.classList.add('me-composer--open');
-    composer.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('me-modal-open');
+  function bindUI() {
+    document.querySelector('[data-add-post]')?.addEventListener('click', openSheet);
+    document.querySelector('.me-empty__add')?.addEventListener('click', openSheet);
+    sheet.querySelector('.screen-backdrop').addEventListener('click', closeSheet);
+    document.querySelector('[data-create-post]').addEventListener('click', () => {
+      closeSheet();
+      fileInput.click();
+    });
+    document.querySelector('[data-create-reel]').addEventListener('click', showReelToast);
+    fileInput.addEventListener('change', handleFile);
+    document.querySelector('.flow-close').addEventListener('click', resetFlow);
+    document.querySelector('.post-editor__next').addEventListener('click', openCaption);
+    document.querySelector('.caption-back').addEventListener('click', backToEditor);
+    document.querySelector('.caption-share').addEventListener('click', publishPost);
+    document.querySelector('.detail-back').addEventListener('click', closeDetail);
   }
 
-  function closeComposer() {
-    composer.classList.remove('me-composer--open');
-    composer.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('me-modal-open');
-    resetComposer();
+  function openSheet() {
+    sheet.classList.add('create-sheet--open');
+    sheet.setAttribute('aria-hidden', 'false');
+  }
+  function closeSheet() {
+    sheet.classList.remove('create-sheet--open');
+    sheet.setAttribute('aria-hidden', 'true');
+  }
+  function showReelToast() {
+    closeSheet();
+    const toast = document.querySelector('.reel-toast');
+    toast.classList.add('reel-toast--show');
+    setTimeout(() => toast.classList.remove('reel-toast--show'), 1400);
   }
 
   function handleFile() {
@@ -85,40 +80,57 @@
     selectedFile = file;
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     previewUrl = URL.createObjectURL(file);
-    const preview = document.querySelector('.me-composer__preview');
-    preview.src = previewUrl;
-    preview.hidden = false;
-    document.querySelector('.me-composer__caption').hidden = false;
-    document.querySelector('.me-composer__pick').hidden = true;
-    document.querySelector('.me-composer__publish').disabled = false;
+    document.querySelector('.post-editor__image').src = previewUrl;
+    document.querySelector('.post-caption__image').src = previewUrl;
+    editor.classList.add('post-editor--open');
+    editor.setAttribute('aria-hidden', 'false');
+  }
+
+  function openCaption() {
+    editor.classList.remove('post-editor--open');
+    caption.classList.add('post-caption--open');
+    caption.setAttribute('aria-hidden', 'false');
+  }
+  function backToEditor() {
+    caption.classList.remove('post-caption--open');
+    editor.classList.add('post-editor--open');
   }
 
   async function publishPost() {
     if (!selectedFile || !db) return;
-    const caption = document.querySelector('.me-composer__caption').value.trim();
-    const post = {
+    const text = document.querySelector('.post-caption__text').value.trim();
+    await idbRequest('readwrite', (store) => store.put({
       id: 'my-' + Date.now(),
       imageBlob: selectedFile,
-      caption,
+      caption: text,
       likes: 0,
       createdAt: Date.now()
-    };
-    await idbRequest('readwrite', (store) => store.put(post));
-    closeComposer();
+    }));
+    resetFlow();
     await refreshPosts();
+  }
+
+  function resetFlow() {
+    editor.classList.remove('post-editor--open');
+    caption.classList.remove('post-caption--open');
+    editor.setAttribute('aria-hidden', 'true');
+    caption.setAttribute('aria-hidden', 'true');
+    document.querySelector('.post-caption__text').value = '';
+    fileInput.value = '';
+    selectedFile = null;
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    previewUrl = null;
   }
 
   async function refreshPosts() {
     revokeRenderedUrls();
     const saved = db ? await idbRequest('readonly', (store) => store.getAll()) : [];
-    const uploaded = saved
-      .sort((a, b) => b.createdAt - a.createdAt)
-      .map((post) => ({
-        ...post,
-        image: URL.createObjectURL(post.imageBlob),
-        date: formatDate(post.createdAt),
-        isObjectUrl: true
-      }));
+    const uploaded = saved.sort((a,b) => b.createdAt-a.createdAt).map((post) => ({
+      ...post,
+      image: URL.createObjectURL(post.imageBlob),
+      date: timeAgo(post.createdAt),
+      isObjectUrl: true
+    }));
     renderedPosts = [...uploaded, ...(me.posts || [])];
     renderGrid();
   }
@@ -128,88 +140,62 @@
     setText('.me-post-count', renderedPosts.length.toLocaleString());
     grid.hidden = renderedPosts.length === 0;
     empty.hidden = renderedPosts.length !== 0;
-
-    renderedPosts.forEach((post, index) => {
+    renderedPosts.forEach((post,index) => {
       const item = document.createElement('button');
       item.type = 'button';
-      item.setAttribute('aria-label', '查看第 ' + (index + 1) + ' 篇貼文');
       item.innerHTML = '<img src="' + post.image + '" alt="我的貼文" />';
-      item.addEventListener('click', () => openPost(index));
+      item.addEventListener('click', () => openDetail(index));
       grid.appendChild(item);
     });
   }
 
-  function openPost(index) {
+  function openDetail(index) {
     const post = renderedPosts[index];
-    postModal.querySelector('.me-post-modal__image').src = post.image;
-    postModal.querySelector('.me-post-modal__avatar').src = me.avatar;
-    postModal.querySelector('.me-post-modal__username').textContent = me.username;
-    postModal.querySelector('.me-post-modal__caption').textContent =
-      post.caption || '沒有說明文字';
-    postModal.querySelector('.me-post-modal__date').textContent = post.date || '';
-    postModal.classList.add('me-post-modal--open');
-    postModal.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('me-modal-open');
+    setText('.detail-account', me.username);
+    setText('.detail-username', me.username);
+    setText('.detail-caption__user', me.username);
+    setText('.detail-caption__text', post.caption || '');
+    setText('.detail-date', post.date || '');
+    document.querySelector('.detail-avatar').src = me.avatar;
+    document.querySelector('.detail-image').src = post.image;
+    detail.classList.add('me-post-detail--open');
+    detail.setAttribute('aria-hidden', 'false');
   }
-
-  function closePost() {
-    postModal.classList.remove('me-post-modal--open');
-    postModal.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('me-modal-open');
-  }
-
-  function resetComposer() {
-    selectedFile = null;
-    fileInput.value = '';
-    const preview = document.querySelector('.me-composer__preview');
-    preview.hidden = true;
-    preview.removeAttribute('src');
-    document.querySelector('.me-composer__caption').hidden = true;
-    document.querySelector('.me-composer__caption').value = '';
-    document.querySelector('.me-composer__pick').hidden = false;
-    document.querySelector('.me-composer__publish').disabled = true;
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    previewUrl = null;
+  function closeDetail() {
+    detail.classList.remove('me-post-detail--open');
+    detail.setAttribute('aria-hidden', 'true');
   }
 
   function openDb() {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(DB_NAME, 1);
-      request.onupgradeneeded = () => {
-        if (!request.result.objectStoreNames.contains(STORE)) {
-          request.result.createObjectStore(STORE, { keyPath: 'id' });
-        }
+    return new Promise((resolve,reject) => {
+      const req = indexedDB.open(DB_NAME,1);
+      req.onupgradeneeded = () => {
+        if (!req.result.objectStoreNames.contains(STORE)) req.result.createObjectStore(STORE,{keyPath:'id'});
       };
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
     });
   }
-
   function idbRequest(mode, action) {
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE, mode);
-      const request = action(tx.objectStore(STORE));
-      request.onsuccess = () => resolve(request.result || []);
-      request.onerror = () => reject(request.error);
+    return new Promise((resolve,reject) => {
+      const req = action(db.transaction(STORE,mode).objectStore(STORE));
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => reject(req.error);
     });
   }
-
   function revokeRenderedUrls() {
-    renderedPosts.forEach((post) => {
-      if (post.isObjectUrl && post.image) URL.revokeObjectURL(post.image);
+    renderedPosts.forEach((p) => {
+      if (p.isObjectUrl && p.image) URL.revokeObjectURL(p.image);
     });
   }
-
-  function formatDate(timestamp) {
-    return new Date(timestamp).toLocaleString('zh-TW', {
-      month: 'numeric',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  function timeAgo(ts) {
+    const minutes = Math.max(1, Math.floor((Date.now()-ts)/60000));
+    if (minutes < 60) return minutes + ' 分鐘前';
+    const hours = Math.floor(minutes/60);
+    if (hours < 24) return hours + ' 小時前';
+    return Math.floor(hours/24) + ' 天前';
   }
-
-  function setText(selector, value) {
+  function setText(selector,value) {
     const node = document.querySelector(selector);
     if (node) node.textContent = value;
   }
