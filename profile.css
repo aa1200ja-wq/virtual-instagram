@@ -181,3 +181,13 @@ button { color: inherit; }
   .profile-modal__image { height: 100%; min-height: 0; }
   .profile-modal__info { padding: 14px 16px 18px; }
 }
+
+
+.profile-action--follow {
+  background: #0095f6;
+  color: #fff;
+}
+.profile-action--following {
+  background: var(--button);
+  color: var(--text);
+}
