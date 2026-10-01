@@ -10,6 +10,7 @@
 
   removeUnusedPanels();
   setupStories();
+  setupProfileNavigation();
   setupPosts();
   createPostModal();
   render();
@@ -52,6 +53,16 @@
     });
   }
 
+  function setupProfileNavigation() {
+    document.querySelectorAll('.profile-button').forEach((button) => {
+      button.setAttribute('aria-label', '查看個人頁');
+      button.addEventListener('click', () => {
+        saveState();
+        window.location.href = 'profile.html';
+      });
+    });
+  }
+
   function setupPosts() {
     posts.forEach((post, index) => {
       post.dataset.postIndex = String(index);
@@ -76,6 +87,11 @@
   }
 
   function render() {
+    document.querySelectorAll('.profile-button__picture img').forEach((img) => {
+      img.src = active.avatar;
+      img.alt = active.username + ' 的大頭貼';
+    });
+
     stories.forEach((story) => {
       story.classList.toggle('story--selected', story.dataset.characterId === active.id);
     });
