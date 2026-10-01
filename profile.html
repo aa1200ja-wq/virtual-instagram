@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>個人頁｜IG 模擬器</title>
+    <link rel="shortcut icon" href="assets/favicon.svg" type="image/x-icon" />
+    <link rel="stylesheet" href="profile.css" />
+    <script src="simulator-data.js" defer></script>
+    <script src="profile.js" defer></script>
+  </head>
+  <body>
+    <header class="profile-topbar">
+      <a class="profile-topbar__back" href="index.html" aria-label="回到首頁">
+        <span>‹</span>
+      </a>
+      <strong class="profile-topbar__username"></strong>
+      <button class="profile-topbar__theme" type="button" aria-label="切換深淺色">☼</button>
+    </header>
+
+    <main class="profile-page">
+      <section class="profile-hero">
+        <div class="profile-hero__avatar-wrap">
+          <img class="profile-hero__avatar" alt="" />
+        </div>
+
+        <div class="profile-hero__main">
+          <div class="profile-hero__title">
+            <h1 class="profile-hero__username"></h1>
+            <button class="profile-action" type="button">追蹤中</button>
+            <button class="profile-action" type="button">發訊息</button>
+            <button class="profile-more" type="button" aria-label="更多">•••</button>
+          </div>
+
+          <div class="profile-stats">
+            <span><strong class="profile-stat-posts">0</strong> 篇貼文</span>
+            <span><strong class="profile-stat-followers">0</strong> 位粉絲</span>
+            <span><strong class="profile-stat-following">0</strong> 追蹤中</span>
+          </div>
+
+          <div class="profile-bio">
+            <strong class="profile-display-name"></strong>
+            <p class="profile-bio__text"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="profile-actions-mobile">
+        <button class="profile-action" type="button">追蹤中</button>
+        <button class="profile-action" type="button">發訊息</button>
+      </section>
+
+      <nav class="profile-tabs" aria-label="個人頁分類">
+        <button class="profile-tab profile-tab--active" type="button">▦ <span>貼文</span></button>
+        <button class="profile-tab" type="button">▶ <span>短影音</span></button>
+        <button class="profile-tab" type="button">♙ <span>標註</span></button>
+      </nav>
+
+      <section class="profile-grid" aria-label="貼文"></section>
+    </main>
+
+    <div class="profile-modal" aria-hidden="true">
+      <button class="profile-modal__backdrop" aria-label="關閉貼文"></button>
+      <article class="profile-modal__panel">
+        <button class="profile-modal__close" aria-label="關閉貼文">×</button>
+        <img class="profile-modal__image" alt="貼文圖片" />
+        <div class="profile-modal__info">
+          <div class="profile-modal__user">
+            <img class="profile-modal__avatar" alt="" />
+            <strong class="profile-modal__username"></strong>
+          </div>
+          <p class="profile-modal__caption"></p>
+          <button class="profile-modal__like" type="button"><span class="profile-modal__heart">♡</span> <span class="profile-modal__likes"></span></button>
+          <span class="profile-modal__date"></span>
+        </div>
+      </article>
+    </div>
+  </body>
+</html>
