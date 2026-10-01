@@ -4,29 +4,43 @@
 
   const storageKey = 'virtual-instagram-state-v1';
   const state = loadState();
-  const character = data.characters.find((item) => item.id === state.activeId) || data.characters[0];
+  const requestedId = new URLSearchParams(location.search).get('id');
+  const character =
+    data.characters.find((item) => item.id === requestedId) ||
+    data.characters.find((item) => item.id === state.viewProfileId) ||
+    data.characters.find((item) => item.id === state.activeId) ||
+    data.characters[0];
   const modal = document.querySelector('.profile-modal');
   let modalIndex = 0;
 
   applyTheme();
   renderProfile();
   bindTheme();
+  bindFollowButtons();
   bindModal();
 
   function loadState() {
     try {
-      return JSON.parse(localStorage.getItem(storageKey)) || { activeId: null, likes: {} };
+      return JSON.parse(localStorage.getItem(storageKey)) || {
+        activeId: null,
+        likes: {},
+        following: {}
+      };
     } catch {
-      return { activeId: null, likes: {} };
+      return { activeId: null, likes: {}, following: {} };
     }
   }
 
   function saveState() {
+    state.viewProfileId = character.id;
     localStorage.setItem(storageKey, JSON.stringify(state));
   }
 
   function applyTheme() {
-    document.documentElement.classList.toggle('darkTheme', localStorage.getItem('theme') === 'dark');
+    document.documentElement.classList.toggle(
+      'darkTheme',
+      localStorage.getItem('theme') === 'dark'
+    );
   }
 
   function bindTheme() {
@@ -46,8 +60,9 @@
     setText('.profile-stat-followers', character.followers || '0');
     setText('.profile-stat-following', character.following || '0');
 
-    document.querySelector('.profile-hero__avatar').src = character.avatar;
-    document.querySelector('.profile-hero__avatar').alt = character.username + ' 的大頭貼';
+    const avatar = document.querySelector('.profile-hero__avatar');
+    avatar.src = character.avatar;
+    avatar.alt = character.username + ' 的大頭貼';
 
     const grid = document.querySelector('.profile-grid');
     grid.textContent = '';
@@ -56,15 +71,41 @@
       button.className = 'profile-grid__item';
       button.type = 'button';
       button.setAttribute('aria-label', '查看第 ' + (index + 1) + ' 篇貼文');
-      button.innerHTML = '<img src="' + post.image + '" alt="' + character.username + ' 的貼文" />';
+      button.innerHTML =
+        '<img src="' + post.image + '" alt="' + character.username + ' 的貼文" />';
       button.addEventListener('click', () => openModal(index));
       grid.appendChild(button);
     });
+    syncFollowButtons();
   }
 
   function setText(selector, text) {
     const node = document.querySelector(selector);
     if (node) node.textContent = text;
+  }
+
+  function isFollowing() {
+    return Boolean(state.following?.[character.id]);
+  }
+
+  function bindFollowButtons() {
+    document.querySelectorAll('[data-follow-button]').forEach((button) => {
+      button.addEventListener('click', () => {
+        state.following ||= {};
+        state.following[character.id] = !isFollowing();
+        saveState();
+        syncFollowButtons();
+      });
+    });
+  }
+
+  function syncFollowButtons() {
+    const followed = isFollowing();
+    document.querySelectorAll('[data-follow-button]').forEach((button) => {
+      button.textContent = followed ? '追蹤中' : '追蹤';
+      button.classList.toggle('profile-action--following', followed);
+      button.classList.toggle('profile-action--follow', !followed);
+    });
   }
 
   function bindModal() {
