@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>我的個人頁｜IG 模擬器</title>
+    <link rel="shortcut icon" href="assets/favicon.svg" type="image/x-icon" />
+    <link rel="stylesheet" href="my-profile.css" />
+    <script src="simulator-data.js" defer></script>
+    <script src="my-profile.js" defer></script>
+  </head>
+  <body>
+    <main class="me-page">
+      <header class="me-topbar">
+        <button class="me-icon me-icon--plus" type="button" aria-label="新增內容">＋</button>
+        <button class="me-account" type="button">
+          <strong class="me-account__name"></strong>
+          <span class="me-account__chevron">⌄</span>
+        </button>
+        <div class="me-topbar__actions">
+          <button class="me-icon me-icon--threads" type="button" aria-label="Threads">＠</button>
+          <button class="me-icon me-icon--menu" type="button" aria-label="選單">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </header>
+
+      <section class="me-summary">
+        <div class="me-avatar-area">
+          <div class="me-note">嘗試分享歌曲……</div>
+          <div class="me-avatar-wrap">
+            <img class="me-avatar" alt="" />
+            <button class="me-avatar-add" type="button" aria-label="新增大頭貼">＋</button>
+          </div>
+        </div>
+
+        <div class="me-stats">
+          <div><strong class="me-post-count">0</strong><span>則貼文</span></div>
+          <div><strong class="me-followers">0</strong><span>位粉絲</span></div>
+          <div><strong class="me-following">0</strong><span>追蹤中</span></div>
+        </div>
+      </section>
+
+      <section class="me-bio">
+        <strong class="me-display-name"></strong>
+        <p class="me-bio-text"></p>
+      </section>
+
+      <section class="me-actions">
+        <button type="button">編輯個人檔案</button>
+        <button type="button">分享個人檔案</button>
+        <button class="me-actions__small" type="button" aria-label="探索好友">♟＋</button>
+      </section>
+
+      <nav class="me-tabs" aria-label="個人頁分類">
+        <button class="me-tab me-tab--active" type="button">▦</button>
+        <button class="me-tab" type="button">▶</button>
+        <button class="me-tab" type="button">♙</button>
+      </nav>
+
+      <section class="me-grid" aria-label="我的貼文"></section>
+      <section class="me-empty" hidden>
+        <div class="me-empty__icon">▣</div>
+        <strong>分享相片</strong>
+        <p>當你分享相片後，就會顯示在個人檔案中。</p>
+      </section>
+    </main>
+  </body>
+</html>
