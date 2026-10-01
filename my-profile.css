@@ -197,3 +197,186 @@ button { font: inherit; color: inherit; }
   .me-actions { padding: 0 16px 20px; grid-template-columns: 1fr 1fr 44px; gap: 8px; }
   .me-actions button { min-height: 42px; font-size: 14px; }
 }
+
+
+/* Own profile post composer */
+.me-empty__add {
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+.me-file-input { display: none; }
+.me-composer,
+.me-post-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.me-composer--open,
+.me-post-modal--open { display: flex; }
+.me-overlay {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(0, 0, 0, .78);
+}
+.me-composer__panel {
+  position: relative;
+  z-index: 1;
+  width: min(680px, 94vw);
+  max-height: 88vh;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+.me-composer__header {
+  height: 52px;
+  display: grid;
+  grid-template-columns: 70px 1fr 70px;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding: 0 12px;
+}
+.me-composer__header strong { text-align: center; }
+.me-composer__cancel,
+.me-composer__publish {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.me-composer__publish {
+  color: #0095f6;
+  font-weight: 700;
+}
+.me-composer__publish:disabled {
+  opacity: .4;
+  cursor: default;
+}
+.me-composer__content {
+  min-height: 420px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 250px;
+}
+.me-composer__pick {
+  grid-column: 1 / -1;
+  min-height: 420px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.me-composer__pick-icon { font-size: 58px; }
+.me-composer__preview {
+  width: 100%;
+  height: 420px;
+  object-fit: contain;
+  background: #000;
+}
+.me-composer__caption {
+  resize: none;
+  width: 100%;
+  min-height: 420px;
+  padding: 18px;
+  border: 0;
+  border-left: 1px solid var(--border);
+  outline: none;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+.me-post-modal__panel {
+  position: relative;
+  z-index: 1;
+  width: min(900px, 96vw);
+  max-height: 90vh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, .65fr);
+  background: var(--bg);
+}
+.me-post-modal__image {
+  width: 100%;
+  height: min(82vh, 720px);
+  object-fit: contain;
+  background: #000;
+}
+.me-post-modal__info {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.me-post-modal__user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.me-post-modal__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.me-post-modal__caption { line-height: 1.5; }
+.me-post-modal__date {
+  margin-top: auto;
+  color: var(--muted);
+  font-size: 12px;
+}
+.me-post-modal__close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0,0,0,.6);
+  color: #fff;
+  font-size: 26px;
+  cursor: pointer;
+}
+body.me-modal-open { overflow: hidden; }
+
+@media (max-width: 620px) {
+  .me-composer,
+  .me-post-modal { padding: 0; }
+  .me-composer__panel,
+  .me-post-modal__panel {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+  }
+  .me-composer__content {
+    min-height: 0;
+    height: calc(100vh - 52px);
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) 150px;
+  }
+  .me-composer__pick { min-height: 0; }
+  .me-composer__preview { height: 100%; min-height: 0; }
+  .me-composer__caption {
+    min-height: 150px;
+    border-left: 0;
+    border-top: 1px solid var(--border);
+  }
+  .me-post-modal__panel {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+  .me-post-modal__image { height: 100%; min-height: 0; }
+}
