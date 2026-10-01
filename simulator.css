@@ -148,3 +148,28 @@ body.sim-modal-open {
     padding: 14px 16px 18px;
   }
 }
+
+
+/* Simulator layout cleanup */
+html,
+body {
+  background-color: var(--secondary);
+}
+
+.header__search,
+.side-menu {
+  display: none !important;
+}
+
+.content {
+  margin: 0 auto !important;
+}
+
+:root.darkTheme body,
+:root.darkTheme .main-container {
+  background-color: var(--secondary);
+}
+
+.sim-like-button.sim-liked {
+  color: var(--like);
+}
