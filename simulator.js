@@ -55,6 +55,11 @@
         likeButton.setAttribute('aria-label', 'Like post');
         likeButton.addEventListener('click', () => toggleLike(index));
       }
+      post.querySelectorAll('.post__avatar, .post__user').forEach((link) => {
+        link.setAttribute('href', '#');
+        link.removeAttribute('target');
+        link.addEventListener('click', (event) => event.preventDefault());
+      });
       post.querySelectorAll('.post__media').forEach((media) => {
         media.classList.add('sim-open-post');
         media.addEventListener('click', () => openPostModal(index, media.src));
