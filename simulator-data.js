@@ -1,4 +1,14 @@
 window.VirtualInstagramData = {
+  me: {
+    id: 'me',
+    username: '我的帳號',
+    displayName: '我的帳號',
+    bio: '',
+    followers: '0',
+    following: '3',
+    avatar: 'assets/default-user.png',
+    posts: []
+  },
   characters: [
     {
       id: 'user-01',
