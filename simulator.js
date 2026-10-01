@@ -55,12 +55,18 @@
 
   function setupProfileNavigation() {
     document.querySelectorAll('.profile-button').forEach((button) => {
-      button.setAttribute('aria-label', '查看個人頁');
+      button.setAttribute('aria-label', '查看自己的個人頁');
       button.addEventListener('click', () => {
         saveState();
-        window.location.href = 'profile.html';
+        window.location.href = 'my-profile.html';
       });
     });
+  }
+
+  function openActiveProfile() {
+    state.viewProfileId = active.id;
+    saveState();
+    window.location.href = 'profile.html?id=' + encodeURIComponent(active.id);
   }
 
   function setupPosts() {
@@ -76,7 +82,10 @@
       post.querySelectorAll('.post__avatar, .post__user').forEach((link) => {
         link.setAttribute('href', '#');
         link.removeAttribute('target');
-        link.addEventListener('click', (event) => event.preventDefault());
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
+          openActiveProfile();
+        });
       });
       post.querySelectorAll('.post__media').forEach((media) => {
         media.classList.add('sim-open-post');
@@ -87,9 +96,10 @@
   }
 
   function render() {
+    const me = data.me || { username: '我的帳號', avatar: 'assets/default-user.png' };
     document.querySelectorAll('.profile-button__picture img').forEach((img) => {
-      img.src = active.avatar;
-      img.alt = active.username + ' 的大頭貼';
+      img.src = me.avatar;
+      img.alt = me.username + ' 的大頭貼';
     });
 
     stories.forEach((story) => {
@@ -112,8 +122,12 @@
         description.textContent = '';
         const username = document.createElement('a');
         username.className = 'post__name--underline';
-        username.href = '#';
+        username.href = 'profile.html?id=' + encodeURIComponent(active.id);
         username.textContent = active.username;
+        username.addEventListener('click', (event) => {
+          event.preventDefault();
+          openActiveProfile();
+        });
         description.append(username, document.createTextNode(' ' + postData.caption));
       }
 
