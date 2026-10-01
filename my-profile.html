@@ -12,7 +12,7 @@
   <body>
     <main class="me-page">
       <header class="me-topbar">
-        <button class="me-icon me-icon--plus" type="button" aria-label="新增內容">＋</button>
+        <button class="me-icon me-icon--plus" type="button" aria-label="新增內容" data-add-post>＋</button>
         <button class="me-account" type="button">
           <strong class="me-account__name"></strong>
           <span class="me-account__chevron">⌄</span>
@@ -60,10 +60,49 @@
 
       <section class="me-grid" aria-label="我的貼文"></section>
       <section class="me-empty" hidden>
-        <div class="me-empty__icon">▣</div>
-        <strong>分享相片</strong>
-        <p>當你分享相片後，就會顯示在個人檔案中。</p>
+        <button class="me-empty__add" type="button">
+          <div class="me-empty__icon">▣</div>
+          <strong>分享相片</strong>
+          <p>當你分享相片後，就會顯示在個人檔案中。</p>
+        </button>
       </section>
     </main>
+
+    <input class="me-file-input" type="file" accept="image/*" hidden />
+
+    <div class="me-composer" aria-hidden="true">
+      <button class="me-overlay" type="button" aria-label="關閉新增貼文"></button>
+      <section class="me-composer__panel" role="dialog" aria-modal="true">
+        <header class="me-composer__header">
+          <button class="me-composer__cancel" type="button">取消</button>
+          <strong>建立新貼文</strong>
+          <button class="me-composer__publish" type="button" disabled>分享</button>
+        </header>
+        <div class="me-composer__content">
+          <button class="me-composer__pick" type="button">
+            <span class="me-composer__pick-icon">▣</span>
+            <strong>從裝置選擇相片</strong>
+          </button>
+          <img class="me-composer__preview" alt="貼文預覽" hidden />
+          <textarea class="me-composer__caption" maxlength="500" placeholder="撰寫說明文字……" hidden></textarea>
+        </div>
+      </section>
+    </div>
+
+    <div class="me-post-modal" aria-hidden="true">
+      <button class="me-overlay" type="button" aria-label="關閉貼文"></button>
+      <article class="me-post-modal__panel">
+        <button class="me-post-modal__close" type="button" aria-label="關閉貼文">×</button>
+        <img class="me-post-modal__image" alt="貼文圖片" />
+        <div class="me-post-modal__info">
+          <div class="me-post-modal__user">
+            <img class="me-post-modal__avatar" alt="" />
+            <strong class="me-post-modal__username"></strong>
+          </div>
+          <p class="me-post-modal__caption"></p>
+          <span class="me-post-modal__date"></span>
+        </div>
+      </article>
+    </div>
   </body>
 </html>
