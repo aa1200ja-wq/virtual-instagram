@@ -5,7 +5,7 @@
   const PEOPLE = window.VirtualInstagramData.people;
   const SOCIAL = window.VISocialEngine;
   const REL = window.VIRelationships;
-  const CONTENT = window.VISocialData.world;
+  const FACTORY = window.VIWorldFactory;
 
   function fresh() {
     return {
@@ -36,7 +36,6 @@
     window.dispatchEvent(new Event('vi-world-change'));
   };
   const person = (id) => PEOPLE.find((p) => p.id === id);
-  const choose = (list, n) => list[Math.abs(Number(n || 0)) % list.length];
 
   function notify(ownerId, type, text, postId = null, createdAt = Date.now()) {
     const p = person(ownerId);
@@ -47,33 +46,12 @@
     });
     state.notifications = state.notifications.slice(0, 60);
   }
-  function makeStory(ownerId, createdAt = Date.now()) {
-    const p = person(ownerId);
-    if (!p) return null;
-    const n = state.counter++;
-    return {
-      id: 'story-' + ownerId + '-' + createdAt,
-      ownerId, username: p.username, avatar: p.avatar,
-      image: choose(CONTENT[ownerId].images, n),
-      caption: choose(CONTENT[ownerId].stories, n),
-      createdAt, expiresAt: createdAt + DAY, mine: false
-    };
-  }
-  function makeNpcPost(ownerId, createdAt = Date.now()) {
-    const p = person(ownerId);
-    if (!p) return null;
-    const n = state.counter++;
-    const image = choose(CONTENT[ownerId].images, n);
-    return {
-      id: 'world-' + ownerId + '-' + createdAt,
-      ownerId, username: p.username, name: p.name, avatar: p.avatar,
-      images: [image], image,
-      caption: choose(CONTENT[ownerId].posts, n),
-      location: n % 2 ? '台北' : '', tags: [],
-      likes: 300 + (n * 137) % 2600,
-      createdAt, isMine: false, generated: true
-    };
-  }
+  const nextIndex = () => state.counter++;
+  const makeStory = (ownerId, createdAt = Date.now()) =>
+    FACTORY.makeStory(ownerId, createdAt, nextIndex);
+  const makeNpcPost = (ownerId, createdAt = Date.now()) =>
+    FACTORY.makePost(ownerId, createdAt, nextIndex);
+
   function addWorldComment(postId, ownerId, text = '', createdAt = Date.now(), replyTo = '') {
     const p = person(ownerId);
     if (!p) return;
@@ -241,7 +219,7 @@
     const item = comments(postId).find((c) => c.id === commentId);
     if (item) { item.liked = !item.liked; save(); }
   }
-  const myFollowerCount = () => Number(state.myFollowers || 0) + ['kai', 'leo'].filter((id) => REL.follows(id, 'me')).length;
+  const myFollowerCount = () => PEOPLE.filter((p) => REL.follows(p.id, 'me')).length;
   const stories = () => (state.stories || []).filter((s) => s.expiresAt > Date.now());
   const notifications = () => state.notifications || [];
   const unreadCount = () => notifications().filter((n) => !n.read).length;
