@@ -56,3 +56,10 @@
 .dm-form input{flex:1;border:1px solid #394752;border-radius:999px;background:#151d24;color:#fff;padding:0 15px}
 .dm-form button{border:0;border-radius:999px;background:#1688f8;color:#fff;padding:0 16px;font-weight:700}
 @media(max-width:700px){.story-reply-form{grid-template-columns:38px 38px 38px 1fr 54px;gap:5px}.story-reply-form button,.story-reply-form input{height:38px}.dm-messages{height:calc(100vh - 120px)}}
+
+@media(max-width:700px){
+  .topbar>.home-button{display:none}
+  #follow-button,#profile-message{display:inline-flex!important;align-items:center;justify-content:center}
+  .profile-title-row{gap:6px}
+  .profile-title-row h1{width:100%;margin-bottom:4px}
+}
