@@ -141,7 +141,7 @@
     if (state.seeded) return;
     const now = Date.now();
     state.stories = PEOPLE.map((p, i) => makeStory(p.id, now - (i + 1) * 19 * 60000));
-    state.generatedPosts = [makeNpcPost('kai', now - 11 * 60000), makeNpcPost('yu', now - 43 * 60000)].filter(Boolean);
+    state.generatedPosts = [makeNpcPost('kai', now - 11 * 60000), makeNpcPost('yu', now - 43 * 60000), makeNpcPost('noah', now - 76 * 60000), makeNpcPost('ryan', now - 108 * 60000)].filter(Boolean);
     state.generatedPosts.forEach(interactWithNpcPost);
     notify('leo', 'follow', '開始追蹤你', null, now - 8 * 60000);
     notify('kai', 'activity', '剛剛更新了貼文', state.generatedPosts[0]?.id, now - 11 * 60000);
@@ -164,7 +164,7 @@
   }
 
   function simulateSlot(at, myPosts) {
-    const owners = ['kai', 'yu', 'leo'];
+    const owners = PEOPLE.map((p) => p.id);
     const owner = owners[state.counter % owners.length];
     if (state.counter % 2 === 0) {
       const post = makeNpcPost(owner, at);
