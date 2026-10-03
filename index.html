@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Virtual Instagram V1.5</title>
+  <title>Virtual Instagram V1.6</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,7 +11,11 @@
   <header class="topbar">
     <button class="icon-button home-button" aria-label="首頁">⌂</button>
     <div class="brand">Instagram</div>
-    <div class="top-actions"><button class="icon-button create-button" aria-label="新增">＋</button><button class="avatar-button me-button" aria-label="我的個人頁"><img class="me-avatar-small" alt=""></button></div>
+    <div class="top-actions">
+      <button id="notifications-button" class="icon-button notification-button" aria-label="通知">♡<span id="notification-badge" class="notification-badge hidden">0</span></button>
+      <button class="icon-button create-button" aria-label="新增">＋</button>
+      <button class="avatar-button me-button" aria-label="我的個人頁"><img class="me-avatar-small" alt=""></button>
+    </div>
   </header>
 
   <main id="feed-view" class="view active"><section class="content-shell"><div id="stories" class="stories"></div><div id="feed" class="feed"></div></section></main>
@@ -24,7 +28,7 @@
 
   <main id="me-view" class="view profile-page">
     <header class="sub-header"><button class="icon-button home-button">⌂</button><strong id="me-header-name"></strong><button class="icon-button create-button">＋</button></header>
-    <section class="profile-hero"><div class="avatar-wrap"><img id="me-avatar" class="profile-avatar" alt=""><button id="avatar-add" class="avatar-add">＋</button></div><div class="profile-main"><div class="profile-title-row"><h1 id="me-username"></h1></div><div class="stats"><span><b id="me-post-count">0</b> 貼文</span><span><b>0</b> 粉絲</span><span><b>3</b> 追蹤中</span></div><div class="bio"><strong id="me-name"></strong><p id="me-bio"></p></div></div></section>
+    <section class="profile-hero"><div class="avatar-wrap"><img id="me-avatar" class="profile-avatar" alt=""><button id="avatar-add" class="avatar-add">＋</button></div><div class="profile-main"><div class="profile-title-row"><h1 id="me-username"></h1></div><div class="stats"><span><b id="me-post-count">0</b> 貼文</span><span><b id="me-followers">0</b> 粉絲</span><span><b>3</b> 追蹤中</span></div><div class="bio"><strong id="me-name"></strong><p id="me-bio"></p></div></div></section>
     <section class="me-actions"><button id="edit-profile">編輯個人檔案</button><button id="share-profile">分享個人檔案</button><button class="toast-button" data-toast="探索好友後續再接">♟＋</button></section>
     <nav class="profile-tabs"><button class="active">▦</button><button>▶</button><button>♙</button></nav><section id="me-grid" class="photo-grid"></section>
     <section id="empty-me" class="empty-state"><div>▣</div><h2>分享相片</h2><p>發佈後會顯示在這裡，也會同步到首頁。</p><button class="pill primary create-button">新增貼文</button></section>
@@ -71,7 +75,39 @@
 
 <div id="post-options-modal" class="modal bottom-sheet"><button class="backdrop modal-close"></button><section class="sheet"><header class="sheet-header"><strong>貼文選項</strong><button class="icon-button modal-close">×</button></header><div class="form"><button id="edit-post-option" class="pill">重新編輯照片／文字</button><button id="edit-caption-option" class="pill">只改文案</button><button id="delete-post-option" class="pill danger">刪除貼文</button></div></section></div>
 
+
+<input id="story-file" type="file" accept="image/*" hidden>
+<section id="story-viewer" class="story-viewer">
+  <div class="story-progress-track"><div id="story-progress" class="story-progress"></div></div>
+  <header class="story-viewer-head">
+    <button id="story-author" class="story-author"><img id="story-avatar" alt=""><span><strong id="story-username"></strong><small id="story-time"></small></span></button>
+    <button id="story-close" class="icon-button" aria-label="關閉限時動態">×</button>
+  </header>
+  <img id="story-image" class="story-viewer-image" alt="限時動態">
+  <div id="story-caption" class="story-viewer-caption"></div>
+  <button id="story-prev" class="story-hit story-hit-prev" aria-label="上一則"></button>
+  <button id="story-next" class="story-hit story-hit-next" aria-label="下一則"></button>
+</section>
+
+<div id="notification-modal" class="modal bottom-sheet">
+  <button id="notification-backdrop" class="backdrop"></button>
+  <section class="sheet notification-sheet">
+    <header class="sheet-header"><strong>通知</strong><button id="notification-close" class="icon-button">×</button></header>
+    <div id="notification-list" class="notification-list"></div>
+  </section>
+</div>
+
 <div id="toast" class="toast"></div>
-<script src="data.js"></script><script src="store.js"></script><script src="editor-render.js"></script><script src="editor.js"></script><script src="app.js"></script>
+<script src="data.js"></script>
+<script src="world.js"></script>
+<script src="store.js"></script>
+<script src="editor-render.js"></script>
+<script src="editor.js"></script>
+<script src="stories.js"></script>
+<script src="notifications.js"></script>
+<script src="app-core.js"></script>
+<script src="app-feed.js"></script>
+<script src="app-profile.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
