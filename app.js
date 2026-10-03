@@ -1,460 +1,134 @@
 (() => {
-  const D = window.VirtualInstagramData;
-  const S = window.VIStore;
-  const E = window.VIEditor;
-  const R = window.VIEditorRender;
-  const W = window.VIWorld;
-  const Stories = window.VIStories;
-  const Notifications = window.VINotifications;
-  const $ = (s, root = document) => root.querySelector(s);
-  const $$ = (s, root = document) => Array.from(root.querySelectorAll(s));
+  const A = window.VIApp;
 
-  let feed = [];
-  let mine = [];
-  let currentPersonId = null;
-  let currentDetail = null;
-  let returnView = 'feed-view';
+  function bindNavigation() {
+    A.$$('.home-button').forEach((button) => {
+      button.onclick = () => A.showView('feed-view');
+    });
+    A.$$('.me-button').forEach((button) => {
+      button.onclick = A.openMe;
+    });
+    A.$$('.create-button').forEach((button) => {
+      button.onclick = () => A.openModal('create-sheet');
+    });
+    A.$('.back-button').onclick = () => A.showView('feed-view');
 
-  const esc = (value) => String(value ?? '').replace(/[&<>'"]/g, (c) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-  }[c]));
-  const ago = (ts) => {
-    const minutes = Math.max(1, Math.floor((Date.now() - Number(ts || Date.now())) / 60000));
-    if (minutes < 60) return minutes + ' 分鐘前';
-    const hours = Math.floor(minutes / 60);
-    return hours < 24 ? hours + ' 小時前' : Math.floor(hours / 24) + ' 天前';
-  };
-  const follower = (n) => Number(n) >= 10000
-    ? (Number(n) / 10000).toFixed(1).replace('.0', '') + ' 萬'
-    : Number(n || 0).toLocaleString('zh-TW');
-  const postById = (id) => feed.find((post) => post.id === id) || null;
-  const likeCount = (post) =>
-    Number(post.likes || 0) + (S.isLiked(post.id) ? 1 : 0) + W.likeDelta(post.id);
-
-  function toast(text) {
-    const el = $('#toast');
-    el.textContent = text;
-    el.classList.add('show');
-    clearTimeout(toast.timer);
-    toast.timer = setTimeout(() => el.classList.remove('show'), 1600);
-  }
-
-  function showView(id) {
-    $$('.view').forEach((view) => view.classList.remove('active'));
-    $('#' + id)?.classList.add('active');
-    S.state().lastView = id;
-    S.save();
-    scrollTo({ top: 0, behavior: 'instant' });
-  }
-
-  function openModal(id) { $('#' + id)?.classList.add('open'); }
-  function closeModal(id) { $('#' + id)?.classList.remove('open'); }
-
-  async function refresh() {
-    mine = await S.getMyPosts();
-    await W.tick(mine);
-    feed = await S.feedPosts();
-    renderFeed();
-    renderMe();
-    Notifications.render();
-  }
-
-  function media(post, onOpen) {
-    const box = document.createElement('div');
-    box.className = 'carousel';
-    const images = post.images?.length ? post.images : [post.image];
-    let index = 0;
-    const img = document.createElement('img');
-    img.className = 'post-media';
-    img.alt = post.username + ' 的貼文';
-    const dots = document.createElement('div');
-    dots.className = 'carousel-dots';
-
-    const sync = () => {
-      img.src = images[index];
-      dots.innerHTML = images.map((_, i) =>
-        '<span class="' + (i === index ? 'active' : '') + '"></span>'
-      ).join('');
-    };
-
-    img.onclick = () => onOpen?.();
-    img.ondblclick = (event) => {
-      event.stopPropagation();
-      S.toggleLike(post.id);
-      renderFeed();
-      if (currentDetail?.id === post.id) renderDetail(postById(post.id));
-    };
-    box.appendChild(img);
-
-    if (images.length > 1) {
-      const prev = document.createElement('button');
-      const next = document.createElement('button');
-      prev.className = 'carousel-arrow prev';
-      next.className = 'carousel-arrow next';
-      prev.textContent = '‹';
-      next.textContent = '›';
-      prev.onclick = (event) => {
-        event.stopPropagation();
-        index = (index - 1 + images.length) % images.length;
-        sync();
+    A.$$('.modal-close').forEach((button) => {
+      button.onclick = () => {
+        button.closest('.modal')?.classList.remove('open');
       };
-      next.onclick = (event) => {
-        event.stopPropagation();
-        index = (index + 1) % images.length;
-        sync();
-      };
-      box.append(prev, next, dots);
-    }
-    sync();
-    return box;
+    });
+
+    A.$$('.toast-button').forEach((button) => {
+      button.onclick = () => A.toast(
+        button.dataset.toast || '功能預留'
+      );
+    });
   }
 
-  function commentButton(id) {
-    const button = document.createElement('button');
-    button.className = 'comment-icon';
-    button.innerHTML = '<span></span>';
-    button.onclick = () => openComments(id);
-    return button;
-  }
-
-  function bookmarkButton(post) {
-    const button = document.createElement('button');
-    button.className = 'bookmark' + (S.isSaved(post.id) ? ' saved' : '');
-    button.setAttribute('aria-label', '收藏');
-    button.innerHTML = '<span></span>';
-    button.onclick = () => {
-      S.toggleSaved(post.id);
-      renderFeed();
-      if (currentDetail?.id === post.id) renderDetail(postById(post.id));
+  function bindPostActions() {
+    A.$('#follow-button').onclick = A.toggleFollow;
+    A.$('#detail-back').onclick = A.closeDetail;
+    A.$('#detail-like').onclick = () => {
+      const detail = A.state.currentDetail;
+      if (!detail) return;
+      A.S.toggleLike(detail.id);
+      A.renderDetail(A.postById(detail.id));
+      A.renderFeed();
     };
-    return button;
-  }
-
-  function renderFeed() {
-    const root = $('#feed');
-    root.innerHTML = '';
-    feed.forEach((post) => {
-      const article = document.createElement('article');
-      article.className = 'post';
-      const head = document.createElement('div');
-      head.className = 'post-head';
-      head.innerHTML =
-        '<img src="' + post.avatar + '" alt="">' +
-        '<div><button class="post-user">' + esc(post.username) + '</button>' +
-        (post.location ? '<small>' + esc(post.location) + '</small>' : '') + '</div>';
-      head.querySelector('img').onclick = () => openOwner(post.ownerId);
-      head.querySelector('.post-user').onclick = () => openOwner(post.ownerId);
-
-      const actions = document.createElement('div');
-      actions.className = 'post-actions';
-      const like = document.createElement('button');
-      like.className = S.isLiked(post.id) ? 'liked' : '';
-      like.textContent = S.isLiked(post.id) ? '♥' : '♡';
-      like.onclick = () => { S.toggleLike(post.id); renderFeed(); };
-      const share = document.createElement('button');
-      share.textContent = '⌁';
-      share.onclick = () => sharePost(post);
-      actions.append(like, commentButton(post.id), share, bookmarkButton(post));
-
-      const meta = document.createElement('div');
-      meta.innerHTML =
-        '<div class="post-likes">' + likeCount(post).toLocaleString('zh-TW') + ' 個讚</div>' +
-        '<div class="post-caption"><strong>' + esc(post.username) + '</strong> ' +
-        esc(post.caption || '') + '</div>' +
-        (post.tags?.length ? '<div class="post-tags">標註 ' +
-          post.tags.map(esc).join('、') + '</div>' : '') +
-        '<div class="post-time">' + ago(post.createdAt) + '</div>';
-      article.append(head, media(post, () => openDetail(post.id, 'feed-view')), actions, meta);
-      root.appendChild(article);
-    });
-  }
-
-  function openOwner(id) { id === 'me' ? openMe() : openProfile(id); }
-
-  function openProfile(id) {
-    const person = S.personById(id);
-    if (!person) return;
-    currentPersonId = id;
-    const posts = S.postsForPerson(id);
-    $('#profile-header-name').textContent = person.username;
-    $('#profile-avatar').src = person.avatar;
-    $('#profile-username').textContent = person.username;
-    $('#profile-name').textContent = person.name;
-    $('#profile-bio').textContent = person.bio;
-    $('#profile-post-count').textContent = posts.length;
-    $('#profile-followers').textContent = follower(person.followers + (S.isFollowing(id) ? 1 : 0));
-    $('#profile-following').textContent = follower(person.following);
-    syncFollow();
-
-    const grid = $('#profile-grid');
-    grid.innerHTML = '';
-    posts.forEach((post) => {
-      const button = document.createElement('button');
-      button.innerHTML = '<img src="' + post.images[0] + '" alt="">';
-      button.onclick = () => openDetail(post.id, 'profile-view');
-      grid.appendChild(button);
-    });
-    showView('profile-view');
-  }
-
-  function syncFollow() {
-    const button = $('#follow-button');
-    const on = S.isFollowing(currentPersonId);
-    button.textContent = on ? '追蹤中' : '追蹤';
-    button.classList.toggle('primary', !on);
-  }
-
-  function toggleFollow() {
-    if (!currentPersonId) return;
-    S.toggleFollow(currentPersonId);
-    openProfile(currentPersonId);
-  }
-
-  function openMe() { renderMe(); showView('me-view'); }
-
-  function renderMe() {
-    const me = S.state().me;
-    $('#me-header-name').textContent = me.username;
-    $('#me-username').textContent = me.username;
-    $('#me-name').textContent = me.name;
-    $('#me-bio').textContent = me.bio;
-    $('#me-avatar').src = me.avatar;
-    $$('.me-avatar-small').forEach((img) => { img.src = me.avatar; });
-    $('#me-post-count').textContent = mine.length;
-    $('#me-followers').textContent = W.myFollowerCount();
-
-    const grid = $('#me-grid');
-    grid.innerHTML = '';
-    mine.forEach((raw) => {
-      const post = S.makeMine(raw);
-      const button = document.createElement('button');
-      button.innerHTML = '<img src="' + post.images[0] + '" alt="">';
-      button.onclick = () => openDetail(post.id, 'me-view');
-      grid.appendChild(button);
-    });
-    $('#empty-me').classList.toggle('hidden', mine.length > 0);
-  }
-
-  function openDetail(id, from) {
-    const post = postById(id);
-    if (!post) return;
-    currentDetail = post;
-    returnView = from || 'feed-view';
-    renderDetail(post);
-    $('#detail-view').classList.add('active');
-  }
-
-  function renderDetail(post) {
-    currentDetail = post;
-    $('#detail-subtitle').textContent = post.username;
-    $('#detail-avatar').src = post.avatar;
-    $('#detail-user').textContent = post.username;
-    $('#detail-location').textContent = post.location || '';
-    $('#detail-caption-user').textContent = post.username;
-    $('#detail-caption').textContent = post.caption || '';
-    $('#detail-tags').textContent = post.tags?.length ? '標註 ' + post.tags.join('、') : '';
-    $('#detail-time').textContent = ago(post.createdAt);
-    $('#detail-likes').textContent = likeCount(post).toLocaleString('zh-TW') + ' 個讚';
-
-    const heart = $('#detail-like');
-    heart.textContent = S.isLiked(post.id) ? '♥' : '♡';
-    heart.classList.toggle('liked', S.isLiked(post.id));
-    const saved = $('#detail-save');
-    saved.classList.toggle('saved', S.isSaved(post.id));
-    saved.innerHTML = '<span></span>';
-    $('#detail-options').style.visibility = post.isMine ? 'visible' : 'hidden';
-
-    const root = $('#detail-media');
-    root.innerHTML = '';
-    root.appendChild(media(post, null));
-  }
-
-  function closeDetail() {
-    $('#detail-view').classList.remove('active');
-    if (returnView === 'me-view') openMe();
-    else if (returnView === 'profile-view' && currentPersonId) openProfile(currentPersonId);
-    else showView('feed-view');
-  }
-
-  function openComments(id) {
-    currentDetail = postById(id);
-    renderComments();
-    openModal('comments-modal');
-    setTimeout(() => $('#comment-input').focus(), 50);
-  }
-
-  function renderComments() {
-    const root = $('#comments-list');
-    const local = S.comments(currentDetail?.id);
-    const world = W.comments(currentDetail?.id);
-    const list = [...world, ...local].sort((a, b) => a.createdAt - b.createdAt);
-    root.innerHTML = '';
-    if (!list.length) {
-      root.innerHTML = '<div class="empty-comment">還沒有留言</div>';
-      return;
-    }
-
-    list.forEach((comment) => {
-      const row = document.createElement('div');
-      row.className = 'comment-row';
-      const avatar = comment.avatar || S.state().me.avatar;
-      row.innerHTML =
-        '<img src="' + avatar + '" alt=""><div><strong>' + esc(comment.author) + '</strong>' +
-        '<p>' + esc(comment.text) + '</p><small>' + ago(comment.createdAt) + '</small>' +
-        '<div class="comment-tools"><button data-like>' + (comment.liked ? '♥' : '♡') + '</button>' +
-        (comment.mine ? '<button data-delete>刪除</button>' : '') + '</div></div>';
-
-      row.querySelector('[data-like]').onclick = () => {
-        if (comment.world) W.toggleCommentLike(currentDetail.id, comment.id);
-        else S.toggleCommentLike(currentDetail.id, comment.id);
-        renderComments();
-      };
-      row.querySelector('[data-delete]')?.addEventListener('click', () => {
-        S.deleteComment(currentDetail.id, comment.id);
-        renderComments();
-      });
-      root.appendChild(row);
-    });
-  }
-
-  async function sharePost(post) {
-    const text = post.username + '：' + (post.caption || '');
-    try {
-      if (navigator.share) await navigator.share({ title: 'IG 模擬器貼文', text });
-      else if (navigator.clipboard) {
-        await navigator.clipboard.writeText(text);
-        toast('貼文內容已複製');
+    A.$('#detail-comment').onclick = () => {
+      const detail = A.state.currentDetail;
+      if (detail) A.openComments(detail.id);
+    };
+    A.$('#detail-share').onclick = () => {
+      if (A.state.currentDetail) {
+        A.sharePost(A.state.currentDetail);
       }
-    } catch {}
-  }
-
-  function openEditProfile() {
-    const me = S.state().me;
-    $('#profile-form-username').value = me.username;
-    $('#profile-form-name').value = me.name;
-    $('#profile-form-bio').value = me.bio;
-    $('#profile-form-avatar').value = '';
-    openModal('profile-edit-modal');
-  }
-
-  async function saveProfile(event) {
-    event.preventDefault();
-    const patch = {
-      username: $('#profile-form-username').value.trim() || S.state().me.username,
-      name: $('#profile-form-name').value.trim() || S.state().me.name,
-      bio: $('#profile-form-bio').value.trim()
     };
-    const file = $('#profile-form-avatar').files?.[0];
-    if (file) patch.avatar = await R.fileToDataURL(file, 500, .82);
-    S.updateMe(patch);
-    closeModal('profile-edit-modal');
-    await refresh();
-    openMe();
-    toast('個人資料已更新');
-  }
-
-  function openOptions() { if (currentDetail?.isMine) openModal('post-options-modal'); }
-
-  async function editCaption() {
-    if (!currentDetail?.isMine) return;
-    const next = prompt('編輯貼文文案', currentDetail.caption || '');
-    if (next === null) return;
-    const raw = mine.find((post) => post.id === currentDetail.id);
-    if (!raw) return;
-    raw.caption = next.trim();
-    await S.putMyPost(raw);
-    closeModal('post-options-modal');
-    await refresh();
-    currentDetail = postById(raw.id);
-    renderDetail(currentDetail);
-  }
-
-  async function deletePost() {
-    if (!currentDetail?.isMine || !confirm('確定要刪除這篇貼文嗎？')) return;
-    await S.deleteMyPost(currentDetail.id);
-    closeModal('post-options-modal');
-    $('#detail-view').classList.remove('active');
-    currentDetail = null;
-    await refresh();
-    openMe();
-    toast('貼文已刪除');
-  }
-
-  function editFullPost() {
-    if (!currentDetail?.isMine) return;
-    const raw = mine.find((post) => post.id === currentDetail.id);
-    closeModal('post-options-modal');
-    $('#detail-view').classList.remove('active');
-    if (raw) E.openExisting(raw);
-  }
-
-  function bind() {
-    E.init();
-    Stories.init({ openProfile, toast });
-    Notifications.init();
-    $$('.home-button').forEach((b) => { b.onclick = () => showView('feed-view'); });
-    $$('.me-button').forEach((b) => { b.onclick = openMe; });
-    $$('.create-button').forEach((b) => { b.onclick = () => openModal('create-sheet'); });
-    $('.back-button').onclick = () => showView('feed-view');
-    $$('.modal-close').forEach((b) => {
-      b.onclick = () => b.closest('.modal')?.classList.remove('open');
-    });
-    $$('.toast-button').forEach((b) => { b.onclick = () => toast(b.dataset.toast || '功能預留'); });
-
-    $('#follow-button').onclick = toggleFollow;
-    $('#detail-back').onclick = closeDetail;
-    $('#detail-like').onclick = () => {
-      if (!currentDetail) return;
-      S.toggleLike(currentDetail.id);
-      renderDetail(postById(currentDetail.id));
-      renderFeed();
+    A.$('#detail-repost').onclick = () => {
+      A.toast('已模擬轉發');
     };
-    $('#detail-comment').onclick = () => currentDetail && openComments(currentDetail.id);
-    $('#detail-share').onclick = () => currentDetail && sharePost(currentDetail);
-    $('#detail-repost').onclick = () => toast('已模擬轉發');
-    $('#detail-save').onclick = () => {
-      if (!currentDetail) return;
-      S.toggleSaved(currentDetail.id);
-      renderDetail(postById(currentDetail.id));
-      renderFeed();
+    A.$('#detail-save').onclick = () => {
+      const detail = A.state.currentDetail;
+      if (!detail) return;
+      A.S.toggleSaved(detail.id);
+      A.renderDetail(A.postById(detail.id));
+      A.renderFeed();
     };
-    $('#detail-options').onclick = openOptions;
-    $('#comment-form').onsubmit = (event) => {
+    A.$('#detail-options').onclick = A.openOptions;
+  }
+
+  function bindForms() {
+    A.$('#comment-form').onsubmit = (event) => {
       event.preventDefault();
-      S.addComment(currentDetail.id, $('#comment-input').value);
-      $('#comment-input').value = '';
-      renderComments();
+      const detail = A.state.currentDetail;
+      if (!detail) return;
+      A.S.addComment(detail.id, A.$('#comment-input').value);
+      A.$('#comment-input').value = '';
+      A.renderComments();
     };
-    $('#create-post-choice').onclick = () => { closeModal('create-sheet'); E.openNew(); };
-    $('#edit-profile').onclick = openEditProfile;
-    $('#avatar-add').onclick = openEditProfile;
-    $('#share-profile').onclick = () => {
-      navigator.clipboard?.writeText('@' + S.state().me.username + '｜' + S.state().me.bio);
-      toast('個人檔案資訊已複製');
-    };
-    $('#profile-form').onsubmit = saveProfile;
-    $('#edit-caption-option').onclick = editCaption;
-    $('#edit-post-option').onclick = editFullPost;
-    $('#delete-post-option').onclick = deletePost;
 
-    window.addEventListener('vi-editor-done', async () => {
-      await refresh();
-      openMe();
-      toast('貼文已更新');
-    });
-    window.addEventListener('vi-posts-change', refresh);
-    window.addEventListener('vi-open-post', (event) => {
-      const post = postById(event.detail?.postId);
-      if (post) openDetail(post.id, 'feed-view');
-    });
-    window.addEventListener('vi-open-profile', (event) => openProfile(event.detail?.ownerId));
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+    A.$('#create-post-choice').onclick = () => {
+      A.closeModal('create-sheet');
+      A.E.openNew();
+    };
+
+    A.$('#edit-profile').onclick = A.openEditProfile;
+    A.$('#avatar-add').onclick = A.openEditProfile;
+    A.$('#share-profile').onclick = () => {
+      const me = A.S.state().me;
+      navigator.clipboard?.writeText(
+        '@' + me.username + '｜' + me.bio
+      );
+      A.toast('個人檔案資訊已複製');
+    };
+
+    A.$('#profile-form').onsubmit = A.saveProfile;
+    A.$('#edit-caption-option').onclick = A.editCaption;
+    A.$('#edit-post-option').onclick = A.editFullPost;
+    A.$('#delete-post-option').onclick = A.deletePost;
   }
 
-  (async () => {
-    bind();
-    await refresh();
-    showView('feed-view');
-    setInterval(refresh, 60000);
-  })();
+  function bindEvents() {
+    window.addEventListener('vi-editor-done', async () => {
+      await A.refresh();
+      A.openMe();
+      A.toast('貼文已更新');
+    });
+    window.addEventListener('vi-posts-change', A.refresh);
+
+    window.addEventListener('vi-open-post', (event) => {
+      const post = A.postById(event.detail?.postId);
+      if (post) A.openDetail(post.id, 'feed-view');
+    });
+
+    window.addEventListener('vi-open-profile', (event) => {
+      if (event.detail?.ownerId) {
+        A.openProfile(event.detail.ownerId);
+      }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) A.refresh();
+    });
+  }
+
+  async function init() {
+    A.E.init();
+    A.Stories.init({
+      openProfile: A.openProfile,
+      toast: A.toast
+    });
+    A.Notifications.init();
+    bindNavigation();
+    bindPostActions();
+    bindForms();
+    bindEvents();
+
+    await A.refresh();
+    A.showView('feed-view');
+    setInterval(A.refresh, 60000);
+  }
+
+  init();
 })();
