@@ -11,7 +11,8 @@
     A.$$('.create-button').forEach((button) => {
       button.onclick = () => A.openModal('create-sheet');
     });
-    A.$('.back-button').onclick = () => A.showView('feed-view');
+    A.$('.back-button').onclick = () =>
+      A.showView(A.state.profileReturnView || 'feed-view');
 
     A.$$('.modal-close').forEach((button) => {
       button.onclick = () => {
