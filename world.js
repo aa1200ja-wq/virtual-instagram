@@ -5,21 +5,7 @@
   const PEOPLE = window.VirtualInstagramData.people;
   const SOCIAL = window.VISocialEngine;
   const REL = window.VIRelationships;
-  const imageMap = {
-    kai: ['assets/sample/kai-1.webp', 'assets/sample/kai-2.webp'],
-    yu: ['assets/sample/yu-1.webp', 'assets/sample/yu-2.webp'],
-    leo: ['assets/sample/leo-1.webp', 'assets/sample/leo-2.webp']
-  };
-  const postCopy = {
-    kai: ['剛好有空，就走遠一點。', '今天的光線不錯。', '買杯咖啡再回去。'],
-    yu: ['今天沒有行程。', '最近一直在聽這首。', '留一張。'],
-    leo: ['今晚就這樣。', '下雨也不錯。', '晚一點的台北。']
-  };
-  const storyCopy = {
-    kai: ['今天就慢慢來。', '路過。', '晚點見。'],
-    yu: ['晚點再出門。', '今天黑色。', '最近的歌單。'],
-    leo: ['夜晚開始。', '雨還沒停。', '吃個東西。']
-  };
+  const CONTENT = window.VISocialData.world;
 
   function fresh() {
     return {
@@ -68,8 +54,8 @@
     return {
       id: 'story-' + ownerId + '-' + createdAt,
       ownerId, username: p.username, avatar: p.avatar,
-      image: choose(imageMap[ownerId], n),
-      caption: choose(storyCopy[ownerId], n),
+      image: choose(CONTENT[ownerId].images, n),
+      caption: choose(CONTENT[ownerId].stories, n),
       createdAt, expiresAt: createdAt + DAY, mine: false
     };
   }
@@ -77,12 +63,12 @@
     const p = person(ownerId);
     if (!p) return null;
     const n = state.counter++;
-    const image = choose(imageMap[ownerId], n);
+    const image = choose(CONTENT[ownerId].images, n);
     return {
       id: 'world-' + ownerId + '-' + createdAt,
       ownerId, username: p.username, name: p.name, avatar: p.avatar,
       images: [image], image,
-      caption: choose(postCopy[ownerId], n),
+      caption: choose(CONTENT[ownerId].posts, n),
       location: n % 2 ? '台北' : '', tags: [],
       likes: 300 + (n * 137) % 2600,
       createdAt, isMine: false, generated: true
