@@ -111,7 +111,17 @@
     const p = normalizeMine(post);
     return { ...p, ownerId: 'me', username: state.me.username, name: state.me.name, avatar: state.me.avatar, likes: Number(p.likes || 0), isMine: true };
   }
-  function npcPosts() { return SAMPLE.people.flatMap((p) => p.posts.map((x) => makeNpcPost(p, x))); }
+  function staticNpcPosts() {
+    return SAMPLE.people.flatMap((p) => p.posts.map((x) => makeNpcPost(p, x)));
+  }
+  function npcPosts() {
+    return [...staticNpcPosts(), ...(window.VIWorld?.extraPosts() || [])];
+  }
+  function postsForPerson(id) {
+    return npcPosts()
+      .filter((post) => post.ownerId === id)
+      .sort((a, b) => b.createdAt - a.createdAt);
+  }
   async function feedPosts() {
     const mine = (await getMyPosts()).map(makeMine);
     return [...mine, ...npcPosts()].sort((a, b) => b.createdAt - a.createdAt);
@@ -123,6 +133,6 @@
     isFollowing, toggleFollow, comments, addComment,
     toggleCommentLike, deleteComment, updateMe,
     getMyPosts, putMyPost, deleteMyPost,
-    makeNpcPost, makeMine, npcPosts, feedPosts
+    makeNpcPost, makeMine, npcPosts, postsForPerson, feedPosts
   };
 })();
