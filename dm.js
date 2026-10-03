@@ -36,6 +36,18 @@
     REL.record(id, 'me', source === 'story' ? 'story' : 'dm');
   }
 
+  function nextNpcReply(id, userText) {
+    const recent = messages(id)
+      .filter((m) => m.from === id)
+      .slice(-5)
+      .map((m) => m.text);
+    for (let i = 0; i < 8; i++) {
+      const reply = SOCIAL.dmReply(id, userText, Date.now() + i * 17);
+      if (!recent.includes(reply)) return reply;
+    }
+    return SOCIAL.dmReply(id, userText, Date.now() + 131);
+  }
+
   function sendUser(id, text, source = 'dm') {
     const value = String(text || '').trim();
     if (!value || !person(id)) return;
@@ -48,7 +60,7 @@
     const delay = score >= 75 ? 900 : score >= 50 ? 1600 : 2800;
     setChatStatus(id, '正在輸入…');
     setTimeout(() => {
-      receiveNpc(id, SOCIAL.dmReply(id, value, Date.now()));
+      receiveNpc(id, nextNpcReply(id, value));
       setChatStatus(id);
     }, delay);
   }
