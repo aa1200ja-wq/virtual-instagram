@@ -89,9 +89,16 @@
       : state.npcFollowing[actor].filter((id) => id !== target);
     save();
   }
+  function setFollowingMe(id, on = true) {
+    state.followingMe = on
+      ? Array.from(new Set([...state.followingMe, id]))
+      : state.followingMe.filter((x) => x !== id);
+    if (on) record(id, 'me', 'follow');
+    else save();
+  }
 
   window.VIRelationships = {
     intimacy, adjust, follows, followStrength, label, score, record,
-    rankActors, npcFollowsMe, setNpcFollow
+    rankActors, npcFollowsMe, setNpcFollow, setFollowingMe
   };
 })();
