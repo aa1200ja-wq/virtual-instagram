@@ -15,6 +15,7 @@
       mine: [],
       currentPersonId: null,
       currentDetail: null,
+      replyingComment: null,
       returnView: 'feed-view'
     }
   };
