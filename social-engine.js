@@ -27,6 +27,8 @@
     if (/晚餐|晚飯|晚饭/.test(text)) return 'dinner';
     if (/午餐|午飯|午饭|中午.*吃/.test(text)) return 'lunch';
     if (/早餐|早上.*吃/.test(text)) return 'breakfast';
+    if (/你請|你请|請我|请我|請客|请客|買給我|买给我/.test(text)) return 'treat';
+    if (/飲料|饮料|奶茶|珍奶|手搖|手摇|咖啡|喝什麼|喝什么|想喝/.test(text)) return 'drink';
     if (/吃什麼|吃什么|吃啥|吃飯|吃饭|餓|饿/.test(text)) return 'food';
     if (/在幹嘛|在干嘛|幹嘛呢|干嘛呢|做什麼|做什么|忙什麼|忙什么/.test(text)) return 'whatDoing';
     if (/哪裡|哪里|在哪|位置|地址|哪一站|哪間|哪家/.test(text)) return 'place';
@@ -41,7 +43,10 @@
     if (/好冷|很冷|冷死|變冷|变冷/.test(text)) return 'cold';
     if (/好熱|好热|很熱|很热|熱死|热死/.test(text)) return 'hot';
     if (/天氣|天气/.test(text)) return 'weather';
-    if (/帥|帅|好看|可愛|可爱|喜歡你|喜欢你|很讚|很赞/.test(text)) return 'compliment';
+    if (/裝死|装死|欠揍|白目|不要鬧|不要闹|你很煩|你很烦|靠北/.test(text)) return 'tease';
+    if (/想你|愛你|爱你|喜歡你|喜欢你|抱抱/.test(text)) return 'affection';
+    if (/帥|帅|好看|可愛|可爱|很讚|很赞/.test(text)) return 'compliment';
+    if (/^(你|欸你|喂你|喔|哦|蛤|哈囉你|哈喽你)$/.test(text)) return 'poke';
     if (/^(嗨|哈囉|哈喽|hello|hi|早安|早|晚安|欸|喂)/.test(text)) return 'greeting';
     return 'fallback';
   }
