@@ -16,6 +16,7 @@
       currentPersonId: null,
       currentDetail: null,
       replyingComment: null,
+      profileReturnView: 'feed-view',
       returnView: 'feed-view'
     }
   };
