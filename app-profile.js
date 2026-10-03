@@ -2,6 +2,10 @@
   const A = window.VIApp;
 
   A.openProfile = (id) => {
+    const activeView = A.$('.view.active')?.id;
+    if (activeView && activeView !== 'profile-view') {
+      A.state.profileReturnView = activeView;
+    }
     const person = A.S.personById(id);
     if (!person) return;
     A.state.currentPersonId = id;
