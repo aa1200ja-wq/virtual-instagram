@@ -1,5 +1,5 @@
 (() => {
-  const KEY = 'virtual-instagram-dm-v17';
+  const KEY = 'virtual-instagram-dm-v18b';
   const DATA = window.VirtualInstagramData;
   const REL = window.VIRelationships;
   const SOCIAL = window.VISocialEngine;
@@ -89,6 +89,7 @@
     state.seeded = true;
     save();
     receiveNpc('kai', '剛看到你最近發的東西，蠻有你的感覺。', t);
+    receiveNpc('yu', '欸～終於開私訊了喔 😏 今天想幹嘛？', t + 120000);
   }
 
   function renderInbox() {
