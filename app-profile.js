@@ -19,6 +19,7 @@
     A.$('#profile-following').textContent = A.follower(person.following);
     A.syncFollow();
     A.renderRelationship(id);
+    A.renderHighlights(id, posts);
 
     const grid = A.$('#profile-grid');
     grid.innerHTML = '';
@@ -52,6 +53,26 @@
           ? '你已追蹤他'
           : '尚未互相追蹤';
     el.textContent = A.Rel.label('me', id) + ' · 親密度 ' + score + ' · ' + followText;
+  };
+
+  A.renderHighlights = (id, posts = []) => {
+    const root = A.$('#profile-highlights');
+    if (!root) return;
+    root.innerHTML = '';
+    const labels = ['最近', '日常', '隨手'];
+    posts.slice(0, 3).forEach((post, index) => {
+      const button = document.createElement('button');
+      button.className = 'highlight-button';
+      button.innerHTML =
+        '<span><img src="' + post.images[0] + '" alt=""></span>' +
+        '<small>' + labels[index] + '</small>';
+      button.onclick = () => {
+        const story = A.W.stories().some((item) => item.ownerId === id);
+        if (story) A.Stories.openOwner(id);
+        else A.openDetail(post.id, 'profile-view');
+      };
+      root.appendChild(button);
+    });
   };
 
   A.toggleFollow = () => {
