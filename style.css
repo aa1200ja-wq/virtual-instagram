@@ -63,3 +63,32 @@
   .profile-title-row{gap:6px}
   .profile-title-row h1{width:100%;margin-bottom:4px}
 }
+
+
+/* V1.8 Explore + profile highlights */
+.profile-highlights{display:flex;gap:18px;overflow-x:auto;padding:0 24px 22px}
+.highlight-button{min-width:72px;border:0;background:transparent;color:#fff;text-align:center}
+.highlight-button>span{display:block;width:66px;height:66px;border-radius:50%;padding:3px;border:1px solid #46515b;margin:auto;background:#111;overflow:hidden}
+.highlight-button img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.highlight-button small{display:block;margin-top:6px;font-size:12px}
+.explore-page{width:min(900px,100%);margin:auto;padding-bottom:80px}
+.explore-header{position:sticky;top:62px;z-index:18;background:#070c10;padding:14px 16px;border-bottom:1px solid #222b33;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:14px}
+.explore-header strong{font-size:20px}
+.explore-header input{width:100%;border:1px solid #34414b;border-radius:12px;background:#182028;color:#fff;padding:11px 14px}
+.explore-header input::placeholder{color:#89949d}
+.explore-people{display:flex;gap:10px;overflow-x:auto;padding:14px 16px;border-bottom:1px solid #202830}
+.explore-person{display:grid;grid-template-columns:46px 1fr;gap:9px;align-items:center;min-width:180px;border:1px solid #27313a;border-radius:13px;background:#0e151b;color:#fff;padding:9px;text-align:left}
+.explore-person img{width:46px;height:46px;border-radius:50%;object-fit:cover}
+.explore-person span{display:grid;gap:2px;min-width:0}
+.explore-person strong,.explore-person small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.explore-person small{color:#939da5}
+.explore-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding-top:3px}
+.explore-tile{position:relative;aspect-ratio:1/1;border:0;padding:0;background:#111;overflow:hidden}
+.explore-tile img{width:100%;height:100%;object-fit:cover}
+.explore-tile span{position:absolute;right:7px;top:6px;color:#fff;font-size:18px;text-shadow:0 1px 5px #000}
+@media(max-width:700px){
+  .profile-highlights{padding:0 16px 18px}
+  .explore-header{top:56px;grid-template-columns:1fr}
+  .explore-header strong{display:none}
+  .explore-grid{gap:2px}
+}
