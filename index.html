@@ -13,6 +13,7 @@
     <div class="brand">Instagram</div>
     <div class="top-actions">
       <button id="notifications-button" class="icon-button notification-button" aria-label="通知">♡<span id="notification-badge" class="notification-badge hidden">0</span></button>
+      <button id="dm-button" class="icon-button notification-button" aria-label="訊息">✉<span id="dm-badge" class="notification-badge hidden">0</span></button>
       <button class="icon-button create-button" aria-label="新增">＋</button>
       <button class="avatar-button me-button" aria-label="我的個人頁"><img class="me-avatar-small" alt=""></button>
     </div>
@@ -22,7 +23,7 @@
 
   <main id="profile-view" class="view profile-page">
     <header class="sub-header"><button class="icon-button back-button">‹</button><strong id="profile-header-name"></strong><span></span></header>
-    <section class="profile-hero"><img id="profile-avatar" class="profile-avatar" alt=""><div class="profile-main"><div class="profile-title-row"><h1 id="profile-username"></h1><button id="follow-button" class="pill primary">追蹤</button><button class="pill toast-button" data-toast="訊息功能後續再接">發訊息</button></div><div class="stats"><span><b id="profile-post-count">0</b> 貼文</span><span><b id="profile-followers">0</b> 粉絲</span><span><b id="profile-following">0</b> 追蹤中</span></div><div class="bio"><strong id="profile-name"></strong><p id="profile-bio"></p></div></div></section>
+    <section class="profile-hero"><img id="profile-avatar" class="profile-avatar" alt=""><div class="profile-main"><div class="profile-title-row"><h1 id="profile-username"></h1><button id="follow-button" class="pill primary">追蹤</button><button id="profile-message" class="pill">發訊息</button></div><div id="relationship-status" class="relationship-status"></div><div class="stats"><span><b id="profile-post-count">0</b> 貼文</span><span><b id="profile-followers">0</b> 粉絲</span><span><b id="profile-following">0</b> 追蹤中</span></div><div class="bio"><strong id="profile-name"></strong><p id="profile-bio"></p></div></div></section>
     <nav class="profile-tabs"><button class="active">▦</button><button>▶</button><button>♙</button></nav><section id="profile-grid" class="photo-grid"></section>
   </main>
 
@@ -69,7 +70,7 @@
   <button id="publish-post" class="publish-button hidden">分享</button><div id="editor-busy" class="busy">處理中…</div>
 </section>
 
-<div id="comments-modal" class="modal bottom-sheet"><button class="backdrop modal-close"></button><section class="sheet comments-sheet"><header class="sheet-header"><strong>留言</strong><button class="icon-button modal-close">×</button></header><div id="comments-list" class="comments-list"></div><form id="comment-form" class="comment-form"><input id="comment-input" placeholder="新增留言…"><button>送出</button></form></section></div>
+<div id="comments-modal" class="modal bottom-sheet"><button class="backdrop modal-close"></button><section class="sheet comments-sheet"><header class="sheet-header"><strong>留言</strong><button class="icon-button modal-close">×</button></header><div id="comments-list" class="comments-list"></div><div id="comment-replying" class="comment-replying hidden"><span></span><button id="cancel-comment-reply">×</button></div><form id="comment-form" class="comment-form"><input id="comment-input" placeholder="新增留言…"><button>送出</button></form></section></div>
 
 <div id="profile-edit-modal" class="modal bottom-sheet"><button class="backdrop modal-close"></button><section class="sheet"><header class="sheet-header"><strong>編輯個人檔案</strong><button class="icon-button modal-close">×</button></header><form id="profile-form" class="form"><label>帳號<input id="profile-form-username"></label><label>名稱<input id="profile-form-name"></label><label>自我介紹<textarea id="profile-form-bio"></textarea></label><label>大頭貼<input id="profile-form-avatar" type="file" accept="image/*"></label><button class="pill primary" type="submit">儲存</button></form></section></div>
 
@@ -85,8 +86,31 @@
   </header>
   <img id="story-image" class="story-viewer-image" alt="限時動態">
   <div id="story-caption" class="story-viewer-caption"></div>
+  <form id="story-reply-form" class="story-reply-form">
+    <button type="button" data-story-reaction="❤️">❤️</button>
+    <button type="button" data-story-reaction="🔥">🔥</button>
+    <button type="button" data-story-reaction="😂">😂</button>
+    <input id="story-reply-input" placeholder="回覆限時動態…">
+    <button type="submit">送出</button>
+  </form>
   <button id="story-prev" class="story-hit story-hit-prev" aria-label="上一則"></button>
   <button id="story-next" class="story-hit story-hit-next" aria-label="下一則"></button>
+</section>
+
+<section id="dm-page" class="overlay-page dm-page">
+  <section id="dm-inbox">
+    <header class="sub-header"><button id="dm-close" class="icon-button">×</button><strong>訊息</strong><span></span></header>
+    <div id="dm-inbox-list" class="dm-inbox-list"></div>
+  </section>
+  <section id="dm-chat" class="hidden">
+    <header class="sub-header">
+      <button id="dm-chat-back" class="icon-button">‹</button>
+      <button id="dm-chat-user" class="dm-chat-user"><img id="dm-chat-avatar" alt=""><strong id="dm-chat-title"></strong></button>
+      <span></span>
+    </header>
+    <div id="dm-messages" class="dm-messages"></div>
+    <form id="dm-form" class="dm-form"><input id="dm-input" placeholder="傳送訊息…"><button>送出</button></form>
+  </section>
 </section>
 
 <div id="notification-modal" class="modal bottom-sheet">
@@ -99,10 +123,14 @@
 
 <div id="toast" class="toast"></div>
 <script src="data.js"></script>
+<script src="social-data.js"></script>
+<script src="relationships.js"></script>
+<script src="social-engine.js"></script>
 <script src="world.js"></script>
 <script src="store.js"></script>
 <script src="editor-render.js"></script>
 <script src="editor.js"></script>
+<script src="dm.js"></script>
 <script src="stories.js"></script>
 <script src="notifications.js"></script>
 <script src="app-core.js"></script>
