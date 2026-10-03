@@ -33,6 +33,8 @@
     if (/在幹嘛|在干嘛|幹嘛呢|干嘛呢|做什麼|做什么|忙什麼|忙什么/.test(text)) return 'whatDoing';
     if (/哪裡|哪里|在哪|位置|地址|哪一站|哪間|哪家/.test(text)) return 'place';
     if (/要不要|一起|約|约|陪我|去嗎|去吗|走嗎|走吗/.test(text)) return 'invite';
+    if (/明天.*(有空|可以|時間|时间|幾點|几点)|(有空|可以).*明天/.test(text)) return 'tomorrowAvailable';
+    if (/明天.*(幹嘛|干嘛|做什麼|做什么|要幹嘛|要干嘛)/.test(text)) return 'tomorrowPlan';
     if (/明天/.test(text)) return 'tomorrow';
     if (/幾點|几点|什麼時候|什么时候|今晚|週末|周末|有空/.test(text)) return 'time';
     if (/很煩|很烦|討厭|讨厌|不爽|氣死|气死|累死|受不了/.test(text)) return 'complaint';
@@ -99,7 +101,17 @@
     const bank = DIALOGUE?.[actor];
     if (!bank) return '嗯嗯';
     const intent = detectIntent(userText);
-    return choose(bank[intent] || bank.fallback, salt);
+    const fallbackMap = {
+      tomorrowPlan: 'tomorrow',
+      tomorrowAvailable: 'tomorrow',
+      drink: 'food',
+      treat: 'invite',
+      tease: 'fallback',
+      poke: 'greeting',
+      affection: 'compliment'
+    };
+    const key = bank[intent] ? intent : (fallbackMap[intent] || 'fallback');
+    return choose(bank[key] || bank.fallback, salt);
   }
 
   function actorRanking(target, type, post = {}) {
