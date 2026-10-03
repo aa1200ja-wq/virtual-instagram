@@ -64,6 +64,8 @@
     $('#story-time').textContent = ago(story.createdAt);
     $('#story-image').src = story.image;
     $('#story-caption').textContent = story.caption || '';
+    $('#story-reply-form').classList.toggle('hidden', Boolean(story.mine));
+    $('#story-reply-input').value = '';
     $('#story-progress').style.animation = 'none';
     void $('#story-progress').offsetWidth;
     $('#story-progress').style.animation = 'story-progress 5s linear forwards';
@@ -121,6 +123,29 @@
       await uploadStory(e.target.files?.[0]);
       e.target.value = '';
     };
+
+    $('#story-reply-form').onsubmit = (e) => {
+      e.preventDefault();
+      const story = queue[current];
+      const input = $('#story-reply-input');
+      if (!story || story.mine || !input.value.trim()) return;
+      window.VIDM?.sendStoryReply(story.ownerId, input.value.trim(), story);
+      options.toast?.('已回覆限時動態');
+      input.value = '';
+    };
+
+    document.querySelectorAll('[data-story-reaction]').forEach((button) => {
+      button.onclick = () => {
+        const story = queue[current];
+        if (!story || story.mine) return;
+        window.VIDM?.sendStoryReply(
+          story.ownerId,
+          button.dataset.storyReaction,
+          story
+        );
+        options.toast?.('已傳送表情回應');
+      };
+    });
   }
 
   function init(input = {}) {
