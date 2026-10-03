@@ -5,6 +5,9 @@
     E: window.VIEditor,
     R: window.VIEditorRender,
     W: window.VIWorld,
+    Rel: window.VIRelationships,
+    Social: window.VISocialEngine,
+    DM: window.VIDM,
     Stories: window.VIStories,
     Notifications: window.VINotifications,
     state: {
