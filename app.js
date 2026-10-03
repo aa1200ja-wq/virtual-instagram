@@ -33,6 +33,7 @@
       const detail = A.state.currentDetail;
       if (!detail) return;
       A.S.toggleLike(detail.id);
+      if (!detail.isMine) A.Rel.record('me', detail.ownerId, 'like');
       A.renderDetail(A.postById(detail.id));
       A.renderFeed();
     };
@@ -56,17 +57,31 @@
       A.renderFeed();
     };
     A.$('#detail-options').onclick = A.openOptions;
+    A.$('#profile-message').onclick = () => {
+      if (A.state.currentPersonId) A.DM.open(A.state.currentPersonId);
+    };
   }
 
   function bindForms() {
     A.$('#comment-form').onsubmit = (event) => {
       event.preventDefault();
       const detail = A.state.currentDetail;
-      if (!detail) return;
-      A.S.addComment(detail.id, A.$('#comment-input').value);
-      A.$('#comment-input').value = '';
+      const input = A.$('#comment-input');
+      const value = input.value.trim();
+      if (!detail || !value) return;
+      const reply = A.state.replyingComment;
+      A.S.addComment(detail.id, value, reply?.author || '');
+      const actor = reply?.ownerId || (!detail.isMine ? detail.ownerId : null);
+      if (actor && actor !== 'me') {
+        A.Rel.record('me', actor, reply ? 'reply' : 'comment');
+        A.W.scheduleCommentReply(detail.id, actor, value);
+      }
+      input.value = '';
+      A.clearCommentReply();
       A.renderComments();
     };
+
+    A.$('#cancel-comment-reply').onclick = A.clearCommentReply;
 
     A.$('#create-post-choice').onclick = () => {
       A.closeModal('create-sheet');
@@ -115,6 +130,7 @@
 
   async function init() {
     A.E.init();
+    A.DM.init();
     A.Stories.init({
       openProfile: A.openProfile,
       toast: A.toast
@@ -127,7 +143,7 @@
 
     await A.refresh();
     A.showView('feed-view');
-    setInterval(A.refresh, 60000);
+    setInterval(A.refresh, 15000);
   }
 
   init();
