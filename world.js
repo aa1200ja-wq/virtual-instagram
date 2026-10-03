@@ -1,5 +1,5 @@
 (() => {
-  const KEY = 'virtual-instagram-world-v18';
+  const KEY = 'virtual-instagram-world-v18b';
   const DAY = 86400000;
   const SLOT = 20 * 60000;
   const PEOPLE = window.VirtualInstagramData.people;
