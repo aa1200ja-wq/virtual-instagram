@@ -38,7 +38,9 @@
         '<small>' + ago(item.createdAt) + '前</small></span>';
       row.onclick = () => {
         close();
-        if (item.postId) {
+        if (item.type === 'story' && item.ownerId) {
+          window.VIDM?.open(item.ownerId);
+        } else if (item.postId) {
           window.dispatchEvent(new CustomEvent('vi-open-post', {
             detail: { postId: item.postId }
           }));
