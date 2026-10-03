@@ -53,7 +53,6 @@
     const value = String(text || '').trim();
     if (!value) return;
     sendUser(id, '回覆你的限時動態：' + value, 'story');
-    open(id);
   }
 
   function unreadCount() {
