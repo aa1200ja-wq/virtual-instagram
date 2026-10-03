@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Virtual Instagram V1.7</title>
+  <title>Virtual Instagram V1.8</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,6 +12,7 @@
     <button class="icon-button home-button" aria-label="首頁">⌂</button>
     <div class="brand">Instagram</div>
     <div class="top-actions">
+      <button class="icon-button explore-button" aria-label="探索">⌕</button>
       <button id="notifications-button" class="icon-button notification-button" aria-label="通知">♡<span id="notification-badge" class="notification-badge hidden">0</span></button>
       <button id="dm-button" class="icon-button notification-button" aria-label="訊息">✉<span id="dm-badge" class="notification-badge hidden">0</span></button>
       <button class="icon-button create-button" aria-label="新增">＋</button>
@@ -24,6 +25,7 @@
   <main id="profile-view" class="view profile-page">
     <header class="sub-header"><button class="icon-button back-button">‹</button><strong id="profile-header-name"></strong><span></span></header>
     <section class="profile-hero"><img id="profile-avatar" class="profile-avatar" alt=""><div class="profile-main"><div class="profile-title-row"><h1 id="profile-username"></h1><button id="follow-button" class="pill primary">追蹤</button><button id="profile-message" class="pill">發訊息</button></div><div id="relationship-status" class="relationship-status"></div><div class="stats"><span><b id="profile-post-count">0</b> 貼文</span><span><b id="profile-followers">0</b> 粉絲</span><span><b id="profile-following">0</b> 追蹤中</span></div><div class="bio"><strong id="profile-name"></strong><p id="profile-bio"></p></div></div></section>
+    <section id="profile-highlights" class="profile-highlights"></section>
     <nav class="profile-tabs"><button class="active">▦</button><button>▶</button><button>♙</button></nav><section id="profile-grid" class="photo-grid"></section>
   </main>
 
@@ -35,6 +37,13 @@
     <section id="empty-me" class="empty-state"><div>▣</div><h2>分享相片</h2><p>發佈後會顯示在這裡，也會同步到首頁。</p><button class="pill primary create-button">新增貼文</button></section>
   </main>
 
+  <main id="explore-view" class="view explore-page">
+    <header class="explore-header"><strong>探索</strong><input id="explore-search" type="search" placeholder="搜尋人物、貼文、地點、Hashtag"></header>
+    <section id="explore-people" class="explore-people"></section>
+    <section id="explore-grid" class="explore-grid"></section>
+    <section id="explore-empty" class="empty-state hidden"><div>⌕</div><h2>找不到結果</h2><p>換個名字或關鍵字試試看。</p></section>
+  </main>
+
   <section id="detail-view" class="overlay-page">
     <header class="sub-header"><button id="detail-back" class="icon-button">‹</button><div class="detail-title"><strong>貼文</strong><span id="detail-subtitle"></span></div><button id="detail-options" class="icon-button">⋯</button></header>
     <div class="detail-user"><img id="detail-avatar" alt=""><div><strong id="detail-user"></strong><small id="detail-location"></small></div></div>
@@ -43,7 +52,7 @@
     <div id="detail-likes" class="detail-likes"></div><div class="detail-caption"><strong id="detail-caption-user"></strong> <span id="detail-caption"></span></div><div id="detail-tags" class="post-tags"></div><div id="detail-time" class="detail-time"></div>
   </section>
 
-  <nav class="bottom-nav"><button class="home-button">⌂</button><button class="toast-button" data-toast="Reel 預覽後續再接">▷</button><button class="create-button">＋</button><button class="toast-button" data-toast="搜尋頁後續再接">⌕</button><button class="me-button">●</button></nav>
+  <nav class="bottom-nav"><button class="home-button">⌂</button><button class="toast-button" data-toast="Reel 預覽後續再接">▷</button><button class="create-button">＋</button><button class="explore-button">⌕</button><button class="me-button">●</button></nav>
 </div>
 
 <div id="create-sheet" class="modal bottom-sheet"><button class="backdrop modal-close"></button><section class="sheet"><div class="handle"></div><h2>建立</h2><button class="sheet-option toast-button modal-close" data-toast="Reel 功能後續再做">▷ <span>Reel</span></button><button id="create-post-choice" class="sheet-option">▦ <span>貼文</span></button></section></div>
@@ -124,6 +133,7 @@
 <div id="toast" class="toast"></div>
 <script src="data.js"></script>
 <script src="social-data.js"></script>
+<script src="dialogue-data.js"></script>
 <script src="relationships.js"></script>
 <script src="social-engine.js"></script>
 <script src="world-factory.js"></script>
@@ -137,6 +147,7 @@
 <script src="app-core.js"></script>
 <script src="app-feed.js"></script>
 <script src="app-profile.js"></script>
+<script src="app-explore.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
