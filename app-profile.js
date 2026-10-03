@@ -18,6 +18,7 @@
     );
     A.$('#profile-following').textContent = A.follower(person.following);
     A.syncFollow();
+    A.renderRelationship(id);
 
     const grid = A.$('#profile-grid');
     grid.innerHTML = '';
@@ -37,10 +38,29 @@
     button.classList.toggle('primary', !on);
   };
 
+  A.renderRelationship = (id) => {
+    const el = A.$('#relationship-status');
+    if (!el || !id) return;
+    const score = A.Rel.intimacy('me', id);
+    const mine = A.S.isFollowing(id);
+    const theirs = A.Rel.follows(id, 'me');
+    const followText = mine && theirs
+      ? '互相追蹤'
+      : theirs
+        ? '他有追蹤你'
+        : mine
+          ? '你已追蹤他'
+          : '尚未互相追蹤';
+    el.textContent = A.Rel.label('me', id) + ' · 親密度 ' + score + ' · ' + followText;
+  };
+
   A.toggleFollow = () => {
-    if (!A.state.currentPersonId) return;
-    A.S.toggleFollow(A.state.currentPersonId);
-    A.openProfile(A.state.currentPersonId);
+    const id = A.state.currentPersonId;
+    if (!id) return;
+    const on = A.S.toggleFollow(id);
+    if (on) A.Rel.record('me', id, 'follow');
+    else A.Rel.adjust('me', id, -2);
+    A.openProfile(id);
   };
 
   A.openMe = () => {
