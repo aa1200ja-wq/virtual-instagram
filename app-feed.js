@@ -100,6 +100,8 @@
     if (A.state.returnView === 'me-view') A.openMe();
     else if (A.state.returnView === 'profile-view' && A.state.currentPersonId) {
       A.openProfile(A.state.currentPersonId);
+    } else if (A.state.returnView === 'explore-view') {
+      A.showView('explore-view');
     } else A.showView('feed-view');
   };
 
