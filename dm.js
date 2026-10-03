@@ -46,7 +46,11 @@
     REL.record('me', id, source === 'story' ? 'story' : 'dm');
     const score = REL.score(id, 'me', 'dm');
     const delay = score >= 75 ? 900 : score >= 50 ? 1600 : 2800;
-    setTimeout(() => receiveNpc(id, SOCIAL.dmReply(id, value, Date.now())), delay);
+    setChatStatus(id, '正在輸入…');
+    setTimeout(() => {
+      receiveNpc(id, SOCIAL.dmReply(id, value, Date.now()));
+      setChatStatus(id);
+    }, delay);
   }
 
   function sendStoryReply(id, text, story) {
@@ -94,11 +98,21 @@
     });
   }
 
+  function setChatStatus(id, text = '') {
+    if (currentId !== id) return;
+    const status = $('#dm-chat-status');
+    if (!status) return;
+    status.textContent = text || (
+      REL.label('me', id) + ' · 親密度 ' + REL.intimacy('me', id)
+    );
+  }
+
   function renderChat() {
     const p = person(currentId);
     if (!p) return;
     $('#dm-chat-title').textContent = p.username;
     $('#dm-chat-avatar').src = p.avatar;
+    setChatStatus(currentId);
     const list = messages(currentId);
     list.forEach((m) => { if (m.from !== 'me') m.read = true; });
     save();
