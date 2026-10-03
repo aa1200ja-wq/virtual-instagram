@@ -136,6 +136,7 @@
       toast: A.toast
     });
     A.Notifications.init();
+    A.initExplore();
     bindNavigation();
     bindPostActions();
     bindForms();
