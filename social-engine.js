@@ -71,13 +71,20 @@
   function reply(actor, parentText = '', salt = 0) {
     const p = profile(actor);
     if (!p) return '哈哈';
-    if (/哪|哪裡|哪里|地址/.test(parentText)) {
-      return choose(['我再傳你', '下次帶你去', '就在台北啊', '我晚點丟位置'], salt);
+    const thread = p.threadReplies || {};
+    if (/哪|哪裡|哪里|地址|位置/.test(parentText)) {
+      return choose(
+        thread.place || ['我再傳你', '下次帶你去', '就在台北啊', '我晚點丟位置'],
+        salt
+      );
     }
     if (/一起|約|下次/.test(parentText)) {
-      return choose(['可以啊', '好，下次約', '你說的喔', '有空就去'], salt);
+      return choose(
+        thread.invite || ['可以啊', '好，下次約', '你說的喔', '有空就去'],
+        salt
+      );
     }
-    return choose(p.replies, salt);
+    return choose(thread.generic || p.replies, salt);
   }
 
   function storyReply(actor, salt = 0) {
