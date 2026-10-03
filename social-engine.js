@@ -31,13 +31,17 @@
     if (/在幹嘛|在干嘛|幹嘛呢|干嘛呢|做什麼|做什么|忙什麼|忙什么/.test(text)) return 'whatDoing';
     if (/哪裡|哪里|在哪|位置|地址|哪一站|哪間|哪家/.test(text)) return 'place';
     if (/要不要|一起|約|约|陪我|去嗎|去吗|走嗎|走吗/.test(text)) return 'invite';
-    if (/幾點|几点|什麼時候|什么时候|明天|今晚|週末|周末|有空/.test(text)) return 'time';
-    if (/心情|最近怎樣|最近怎样|還好嗎|还好吗|開心|开心|難過|难过|低落|煩|烦/.test(text)) return 'mood';
+    if (/明天/.test(text)) return 'tomorrow';
+    if (/幾點|几点|什麼時候|什么时候|今晚|週末|周末|有空/.test(text)) return 'time';
+    if (/很煩|很烦|討厭|讨厌|不爽|氣死|气死|累死|受不了/.test(text)) return 'complaint';
+    if (/心情|最近怎樣|最近怎样|還好嗎|还好吗|開心|开心|難過|难过|低落/.test(text)) return 'mood';
     if (/工作|上班|下班|加班|讀書|读书|上課|上课|公司|忙嗎|忙吗/.test(text)) return 'work';
     if (/睡了嗎|睡了吗|睡覺|睡觉|睡嗎|睡吗|晚安|失眠/.test(text)) return 'sleep';
-    if (/天氣|天气|下雨|好冷|很冷|好熱|好热|很熱|雨/.test(text)) return 'weather';
+    if (/下雨|雨天|淋雨/.test(text)) return 'rain';
+    if (/好冷|很冷|冷死|變冷|变冷/.test(text)) return 'cold';
+    if (/好熱|好热|很熱|很热|熱死|热死/.test(text)) return 'hot';
+    if (/天氣|天气/.test(text)) return 'weather';
     if (/帥|帅|好看|可愛|可爱|喜歡你|喜欢你|很讚|很赞/.test(text)) return 'compliment';
-    if (/很煩|很烦|討厭|讨厌|不爽|氣死|气死|累死|受不了/.test(text)) return 'complaint';
     if (/^(嗨|哈囉|哈喽|hello|hi|早安|早|晚安|欸|喂)/.test(text)) return 'greeting';
     return 'fallback';
   }
