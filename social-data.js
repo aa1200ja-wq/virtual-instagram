@@ -43,6 +43,23 @@ window.VISocialData = {
       dmReplies: ['可以啊', '沒問題', '下次約', '確實', '我也覺得']
     }
   },
+  world: {
+    kai: {
+      images: ['assets/sample/kai-1.webp', 'assets/sample/kai-2.webp'],
+      posts: ['剛好有空，就走遠一點。', '今天的光線不錯。', '買杯咖啡再回去。'],
+      stories: ['今天就慢慢來。', '路過。', '晚點見。']
+    },
+    yu: {
+      images: ['assets/sample/yu-1.webp', 'assets/sample/yu-2.webp'],
+      posts: ['今天沒有行程。', '最近一直在聽這首。', '留一張。'],
+      stories: ['晚點再出門。', '今天黑色。', '最近的歌單。']
+    },
+    leo: {
+      images: ['assets/sample/leo-1.webp', 'assets/sample/leo-2.webp'],
+      posts: ['今晚就這樣。', '下雨也不錯。', '晚一點的台北。'],
+      stories: ['夜晚開始。', '雨還沒停。', '吃個東西。']
+    }
+  },
   npcFollowing: {
     kai: ['yu'],
     yu: ['kai', 'leo'],
