@@ -16,15 +16,15 @@ window.VISocialData = {
     yu: {
       interests: ['音樂', '黑色', '穿搭', '唱片', '自拍', '夜晚'],
       comments: {
-        generic: ['好看。', '這張我喜歡', '可以。', '留著', '這張比上一張好'],
-        music: ['最近在聽什麼', '這張很像專輯封面', '歌單給我'],
-        night: ['夜晚比較適合你', '這個光不錯', '有氛圍'],
-        fashion: ['今天黑色？', '這套不錯', '外套可以'],
-        place: ['哪裡拍的', '這裡我知道', '改天去']
+        generic: ['欸這張有可以喔 😏', '你最近是不是偷練拍照 😂', '先准你帥一下 😎', '好啦這張真的好看 🖤', '你本人有照片這麼乖嗎 🤨', '這張我勉強按個讚 😌', '又在騙讚是不是 😂', '今天狀態有到欸 🔥'],
+        music: ['歌單交出來 🎧', '這張很像要發新單曲欸 😂🎵', '你最近到底在循環哪首', '先說歌名，不要藏 😏', '這首配這張很可以 🖤'],
+        night: ['半夜不睡在這邊帥什麼 😑😂', '這個光有東西欸 🌙', '夜晚果然比較適合你 😏', '你又偷偷跑出去喔', '這張有電影感，先給你過 🔥'],
+        fashion: ['欸今天有認真穿喔 😏', '這套可以，鞋子也行 👀', '全黑又來了是不是 🖤', '外套借我，我幫你保管 😂', '好啦這套真的帥 😎'],
+        place: ['哪裡啦，位置交出來 📍', '這裡我知道，你竟然沒揪 😑', '改天帶路啊 😏', '這景可以，店名先丟來', '你是不是又自己偷跑 😂']
       },
-      replies: ['嗯，可以', '有機會', '你先去', '我知道 😂', '再說', '看情況'],
-      storyReplies: ['這張可以', '你又跑出去', '好看。', '哪裡', '這個光不錯'],
-      dmOpeners: ['剛看到你的限動', '那篇是今天拍的？', '最近還好？', '你還在外面？']
+      replies: ['你很會欸 😂', '喔～現在知道找我了 😏', '可以啊，你敢約我就敢去 😎', '少來，你明明就想 😌', '好啦算你有誠意', '你再講一次我就信 😂', '行啦行啦，別催', '我有看到啦，裝忙不行喔 😏'],
+      storyReplies: ['又去哪裡混 😏', '這張有帥到欸 🔥', '你今天很會喔 😂', '位置交出來 📍', '欸這張我喜歡 🖤', '半夜還在外面喔 🤨', '可以啦，先給你一個 ❤️'],
+      dmOpeners: ['欸～終於出現了喔 😏', '剛看到你限動，你又去哪混 😂', '你今天有沒有乖乖吃飯 🧋', '欸你現在在幹嘛', '先說，你是不是又想找我 😎']
     },
     leo: {
       interests: ['城市', '夜景', '餐廳', '雨天', '穿搭', '台北'],
@@ -68,7 +68,7 @@ window.VISocialData = {
   },
   world: {
     kai: {
-      images: ['assets/sample/kai-1.webp', 'assets/sample/kai-2.webp'],
+      images: ['assets/sample/kai-main.webp', 'assets/sample/kai-main.webp'],
       posts: ['剛好有空，就走遠一點。', '今天的光線不錯。', '買杯咖啡再回去。'],
       stories: ['今天就慢慢來。', '路過。', '晚點見。']
     },
@@ -78,17 +78,17 @@ window.VISocialData = {
       stories: ['晚點再出門。', '今天黑色。', '最近的歌單。']
     },
     leo: {
-      images: ['assets/sample/leo-1.webp', 'assets/sample/leo-2.webp'],
+      images: ['assets/sample/leo-main.webp', 'assets/sample/leo-main.webp'],
       posts: ['今晚就這樣。', '下雨也不錯。', '晚一點的台北。'],
       stories: ['夜晚開始。', '雨還沒停。', '吃個東西。']
     },
     noah: {
-      images: ['assets/sample/noah-1.webp', 'assets/sample/noah-2.webp'],
+      images: ['assets/sample/noah-main.webp', 'assets/sample/noah-main.webp'],
       posts: ['今天不趕時間。', '耳機戴著就走遠一點。', '咖啡先。'],
       stories: ['在等車。', '今天慢一點。', '剛好有空。']
     },
     ryan: {
-      images: ['assets/sample/ryan-1.webp', 'assets/sample/ryan-2.webp'],
+      images: ['assets/sample/ryan-main.webp', 'assets/sample/ryan-main.webp'],
       posts: ['今天就黑色。', '喝完這杯再回家。', '整天都在外面。'],
       stories: ['剛下車。', '今天又很晚。', '先喝東西。']
     }
