@@ -77,6 +77,7 @@
     App.state.feed = await App.S.feedPosts();
     App.renderFeed?.();
     App.renderMe?.();
+    App.renderExplore?.(App.$('#explore-search')?.value || '');
     App.Notifications.render();
   };
 
