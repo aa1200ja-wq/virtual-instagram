@@ -1,39 +1,48 @@
 (() => {
-  const KEY = 'virtual-instagram-world-v16';
+  const KEY = 'virtual-instagram-world-v17';
   const DAY = 86400000;
-  const SLOT = 15 * 60000;
+  const SLOT = 20 * 60000;
   const PEOPLE = window.VirtualInstagramData.people;
-  const configs = {
-    kai: {
-      images: ['assets/sample/kai-1.webp', 'assets/sample/kai-2.webp'],
-      captions: ['剛好有空，就走遠一點。', '今天的光線不錯。', '買杯咖啡再回去。'],
-      story: ['今天就慢慢來。', '路過。', '晚點見。'],
-      comments: ['這張可以。', '有夠會拍', '今天很帥欸']
-    },
-    yu: {
-      images: ['assets/sample/yu-1.webp', 'assets/sample/yu-2.webp'],
-      captions: ['今天沒有行程。', '最近一直在聽這首。', '留一張。'],
-      story: ['晚點再出門。', '今天黑色。', '最近的歌單。'],
-      comments: ['好看。', '這張我喜歡', '可以發更多']
-    },
-    leo: {
-      images: ['assets/sample/leo-1.webp', 'assets/sample/leo-2.webp'],
-      captions: ['今晚就這樣。', '下雨也不錯。', '晚一點的台北。'],
-      story: ['夜晚開始。', '雨還沒停。', '吃個東西。'],
-      comments: ['可以。', '這個氛圍不錯', '有型']
-    }
+  const SOCIAL = window.VISocialEngine;
+  const REL = window.VIRelationships;
+  const imageMap = {
+    kai: ['assets/sample/kai-1.webp', 'assets/sample/kai-2.webp'],
+    yu: ['assets/sample/yu-1.webp', 'assets/sample/yu-2.webp'],
+    leo: ['assets/sample/leo-1.webp', 'assets/sample/leo-2.webp']
+  };
+  const postCopy = {
+    kai: ['剛好有空，就走遠一點。', '今天的光線不錯。', '買杯咖啡再回去。'],
+    yu: ['今天沒有行程。', '最近一直在聽這首。', '留一張。'],
+    leo: ['今晚就這樣。', '下雨也不錯。', '晚一點的台北。']
+  };
+  const storyCopy = {
+    kai: ['今天就慢慢來。', '路過。', '晚點見。'],
+    yu: ['晚點再出門。', '今天黑色。', '最近的歌單。'],
+    leo: ['夜晚開始。', '雨還沒停。', '吃個東西。']
   };
 
   function fresh() {
     return {
       seeded: false, lastTick: Date.now(), counter: 0,
       generatedPosts: [], notifications: [], likeDeltas: {},
-      comments: {}, stories: [], seenUserPosts: [], myFollowers: 0
+      comments: {}, stories: [], seenUserPosts: [], pending: [],
+      myFollowers: 0
     };
   }
   function load() {
-    try { return { ...fresh(), ...JSON.parse(localStorage.getItem(KEY) || '{}') }; }
-    catch { return fresh(); }
+    try {
+      const raw = JSON.parse(localStorage.getItem(KEY) || '{}');
+      return {
+        ...fresh(), ...raw,
+        generatedPosts: raw.generatedPosts || [],
+        notifications: raw.notifications || [],
+        likeDeltas: raw.likeDeltas || {},
+        comments: raw.comments || {},
+        stories: raw.stories || [],
+        seenUserPosts: raw.seenUserPosts || [],
+        pending: raw.pending || []
+      };
+    } catch { return fresh(); }
   }
   let state = load();
   const save = () => {
@@ -41,141 +50,176 @@
     window.dispatchEvent(new Event('vi-world-change'));
   };
   const person = (id) => PEOPLE.find((p) => p.id === id);
-  const cfg = (id) => configs[id];
-  const choose = (list, n) => list[n % list.length];
+  const choose = (list, n) => list[Math.abs(Number(n || 0)) % list.length];
 
   function notify(ownerId, type, text, postId = null, createdAt = Date.now()) {
     const p = person(ownerId);
-    if (type === 'follow') state.myFollowers = Number(state.myFollowers || 0) + 1;
     state.notifications.unshift({
       id: 'n-' + createdAt + '-' + state.counter++,
       ownerId, avatar: p?.avatar || '', username: p?.username || '',
       type, text, postId, createdAt, read: false
     });
-    state.notifications = state.notifications.slice(0, 50);
+    state.notifications = state.notifications.slice(0, 60);
   }
-
   function makeStory(ownerId, createdAt = Date.now()) {
-    const p = person(ownerId), c = cfg(ownerId);
-    if (!p || !c) return null;
-    const index = state.counter++;
+    const p = person(ownerId);
+    if (!p) return null;
+    const n = state.counter++;
     return {
       id: 'story-' + ownerId + '-' + createdAt,
       ownerId, username: p.username, avatar: p.avatar,
-      image: choose(c.images, index), caption: choose(c.story, index),
+      image: choose(imageMap[ownerId], n),
+      caption: choose(storyCopy[ownerId], n),
       createdAt, expiresAt: createdAt + DAY, mine: false
     };
   }
-
   function makeNpcPost(ownerId, createdAt = Date.now()) {
-    const p = person(ownerId), c = cfg(ownerId);
-    if (!p || !c) return null;
-    const index = state.counter++;
+    const p = person(ownerId);
+    if (!p) return null;
+    const n = state.counter++;
+    const image = choose(imageMap[ownerId], n);
     return {
       id: 'world-' + ownerId + '-' + createdAt,
       ownerId, username: p.username, name: p.name, avatar: p.avatar,
-      images: [choose(c.images, index)], image: choose(c.images, index),
-      caption: choose(c.captions, index), location: index % 2 ? '台北' : '',
-      tags: [], likes: 300 + (index * 137) % 2600,
+      images: [image], image,
+      caption: choose(postCopy[ownerId], n),
+      location: n % 2 ? '台北' : '', tags: [],
+      likes: 300 + (n * 137) % 2600,
       createdAt, isMine: false, generated: true
     };
   }
-
-  function addWorldComment(postId, ownerId, createdAt = Date.now()) {
-    const p = person(ownerId), c = cfg(ownerId);
-    if (!p || !c) return;
+  function addWorldComment(postId, ownerId, text = '', createdAt = Date.now(), replyTo = '') {
+    const p = person(ownerId);
+    if (!p) return;
     state.comments[postId] ||= [];
-    if (state.comments[postId].length >= 12) return;
-    const index = state.counter++;
+    if (state.comments[postId].length >= 20) return;
     state.comments[postId].push({
-      id: 'wc-' + createdAt + '-' + index,
-      author: p.username, avatar: p.avatar,
-      text: choose(c.comments, index), createdAt,
-      liked: false, mine: false, world: true
+      id: 'wc-' + createdAt + '-' + state.counter++,
+      ownerId, author: p.username, avatar: p.avatar,
+      text: text || SOCIAL.comment(ownerId, { caption: '' }, state.counter),
+      createdAt, liked: false, mine: false, world: true, replyTo
     });
   }
-
-  function seed() {
-    if (state.seeded) return;
-    const now = Date.now();
-    state.stories = PEOPLE.map((p, i) => makeStory(p.id, now - (i + 1) * 17 * 60000));
-    state.generatedPosts = [
-      makeNpcPost('kai', now - 9 * 60000),
-      makeNpcPost('yu', now - 37 * 60000)
-    ].filter(Boolean);
-    if (state.generatedPosts[0]) {
-      state.likeDeltas[state.generatedPosts[0].id] = 2;
-      addWorldComment(state.generatedPosts[0].id, 'yu', now - 7 * 60000);
-    }
-    if (state.generatedPosts[1]) {
-      state.likeDeltas[state.generatedPosts[1].id] = 1;
-      addWorldComment(state.generatedPosts[1].id, 'leo', now - 31 * 60000);
-    }
-    notify('leo', 'follow', '開始追蹤你', null, now - 6 * 60000);
-    notify('kai', 'activity', '剛剛更新了貼文', state.generatedPosts[0]?.id, now - 9 * 60000);
-    state.seeded = true;
-    state.lastTick = now;
-    save();
+  function queue(event) {
+    state.pending.push({ id: 'e-' + Date.now() + '-' + state.counter++, ...event });
+    state.pending.sort((a, b) => a.at - b.at);
   }
-
+  function interactWithNpcPost(post) {
+    const candidates = PEOPLE
+      .filter((p) => p.id !== post.ownerId)
+      .map((p) => ({
+        id: p.id,
+        score: REL.score(p.id, post.ownerId, 'comment', SOCIAL.interestBoost(p.id, post))
+      }))
+      .sort((a, b) => b.score - a.score);
+    const top = candidates[0];
+    if (top?.score >= 42) {
+      state.likeDeltas[post.id] = 1 + Math.floor(top.score / 35);
+      REL.record(top.id, post.ownerId, 'like');
+    }
+    if (top?.score >= 58) {
+      addWorldComment(post.id, top.id, SOCIAL.comment(top.id, post, state.counter), post.createdAt + 45000);
+      REL.record(top.id, post.ownerId, 'comment');
+    }
+  }
+  function scheduleUserPost(post) {
+    const ranked = SOCIAL.actorRanking('me', 'comment', post);
+    ranked.slice(0, 3).forEach(({ actor, score }, index) => {
+      if (score >= 32) queue({ type: 'like', actor, postId: post.id, at: Date.now() + 8000 + index * 26000 });
+      if (score >= 54) queue({
+        type: 'comment', actor, postId: post.id,
+        text: SOCIAL.comment(actor, post, state.counter + index),
+        at: Date.now() + 24000 + index * 52000
+      });
+      if (score >= 82 && index === 0) queue({
+        type: 'dm', actor,
+        text: SOCIAL.dmOpener(actor, state.counter),
+        at: Date.now() + 120000
+      });
+    });
+  }
   function reactToNewUserPosts(myPosts) {
     for (const post of myPosts || []) {
       if (state.seenUserPosts.includes(post.id)) continue;
       state.seenUserPosts.push(post.id);
-      const owners = ['kai', 'yu', 'leo'];
-      owners.slice(0, 2).forEach((ownerId, i) => {
-        state.likeDeltas[post.id] = Number(state.likeDeltas[post.id] || 0) + 1;
-        notify(ownerId, 'like', '按讚了你的貼文', post.id, Date.now() - i * 15000);
-        if (i === 1) {
-          addWorldComment(post.id, ownerId);
-          notify(ownerId, 'comment', '留言：' + cfg(ownerId).comments[0], post.id);
-        }
-      });
+      scheduleUserPost(post);
     }
-    state.seenUserPosts = state.seenUserPosts.slice(-30);
+    state.seenUserPosts = state.seenUserPosts.slice(-40);
   }
-
+  function processPending(now = Date.now()) {
+    const due = state.pending.filter((event) => event.at <= now);
+    state.pending = state.pending.filter((event) => event.at > now);
+    for (const event of due) {
+      if (event.type === 'like') {
+        state.likeDeltas[event.postId] = Number(state.likeDeltas[event.postId] || 0) + 1;
+        REL.record(event.actor, 'me', 'like');
+        notify(event.actor, 'like', '按讚了你的貼文', event.postId, event.at);
+      }
+      if (event.type === 'comment' || event.type === 'reply') {
+        addWorldComment(event.postId, event.actor, event.text, event.at, event.replyTo || '');
+        REL.record(event.actor, 'me', event.type === 'reply' ? 'reply' : 'comment');
+        notify(event.actor, 'comment', '留言：' + event.text, event.postId, event.at);
+      }
+      if (event.type === 'story') {
+        REL.record(event.actor, 'me', 'story');
+        notify(event.actor, 'story', '回覆你的限時動態：' + event.text, null, event.at);
+        window.VIDM?.receiveNpc(event.actor, '回覆你的限時動態：' + event.text, event.at, 'story');
+      }
+      if (event.type === 'dm') window.VIDM?.receiveNpc(event.actor, event.text, event.at);
+      if (event.type === 'follow') {
+        REL.setFollowingMe(event.actor, true);
+        state.myFollowers = Number(state.myFollowers || 0) + 1;
+        notify(event.actor, 'follow', '開始追蹤你', null, event.at);
+      }
+    }
+  }
+  function seed() {
+    if (state.seeded) return;
+    const now = Date.now();
+    state.stories = PEOPLE.map((p, i) => makeStory(p.id, now - (i + 1) * 19 * 60000));
+    state.generatedPosts = [makeNpcPost('kai', now - 11 * 60000), makeNpcPost('yu', now - 43 * 60000)].filter(Boolean);
+    state.generatedPosts.forEach(interactWithNpcPost);
+    notify('leo', 'follow', '開始追蹤你', null, now - 8 * 60000);
+    notify('kai', 'activity', '剛剛更新了貼文', state.generatedPosts[0]?.id, now - 11 * 60000);
+    state.seeded = true;
+    state.lastTick = now;
+    save();
+  }
   function simulateSlot(at, myPosts) {
     const owners = ['kai', 'yu', 'leo'];
-    const ownerId = owners[state.counter % owners.length];
+    const owner = owners[state.counter % owners.length];
     if (state.counter % 2 === 0) {
-      const post = makeNpcPost(ownerId, at);
+      const post = makeNpcPost(owner, at);
       if (post) {
         state.generatedPosts.unshift(post);
-        const actor = owners[(owners.indexOf(ownerId) + 1) % owners.length];
-        state.likeDeltas[post.id] = 1 + (state.counter % 3);
-        addWorldComment(post.id, actor, at + 30000);
-        notify(ownerId, 'activity', '更新了貼文', post.id, at);
+        interactWithNpcPost(post);
+        notify(owner, 'activity', '更新了貼文', post.id, at);
       }
     }
+    if (state.counter % 3 === 0) state.stories.push(makeStory(owner, at));
     const target = (myPosts || [])[0];
-    if (target) {
-      const actor = owners[(state.counter + 1) % owners.length];
-      state.likeDeltas[target.id] = Number(state.likeDeltas[target.id] || 0) + 1;
-      notify(actor, 'like', '按讚了你的貼文', target.id, at);
-      if (state.counter % 3 === 0) {
-        addWorldComment(target.id, actor, at);
-        notify(actor, 'comment', '留言：' + cfg(actor).comments[state.counter % 3], target.id, at);
-      }
-    } else if (state.counter % 3 === 0) {
-      notify(ownerId, 'follow', '開始追蹤你', null, at);
+    if (target) scheduleUserPost({ ...target, createdAt: at });
+    const followCandidate = owners.find((id) =>
+      !REL.follows(id, 'me') && REL.intimacy(id, 'me') >= 45
+    );
+    if (followCandidate && state.counter % 4 === 0) {
+      queue({ type: 'follow', actor: followCandidate, at: at + 60000 });
     }
-    if (state.counter % 4 === 0) state.stories.push(makeStory(ownerId, at));
   }
-
   async function tick(myPosts = []) {
     seed();
     reactToNewUserPosts(myPosts);
     const now = Date.now();
+    processPending(now);
     const elapsed = Math.max(0, now - Number(state.lastTick || now));
-    const slots = Math.min(8, Math.floor(elapsed / SLOT));
+    const slots = Math.min(6, Math.floor(elapsed / SLOT));
     for (let i = slots; i > 0; i--) simulateSlot(now - (i - 1) * SLOT, myPosts);
-    if (slots > 0) state.lastTick = Number(state.lastTick || now) + slots * SLOT;
-    state.generatedPosts = state.generatedPosts.filter(Boolean).slice(0, 16);
-    state.stories = state.stories.filter((s) => s && s.expiresAt > now).slice(-16);
+    if (slots) state.lastTick = Number(state.lastTick || now) + slots * SLOT;
+    processPending(now);
+    state.generatedPosts = state.generatedPosts.filter(Boolean).slice(0, 20);
+    state.stories = state.stories.filter((s) => s && s.expiresAt > now).slice(-20);
     save();
   }
-
   function addMyStory(image, caption = '') {
     const me = window.VIStore?.state().me || window.VirtualInstagramData.me;
     const now = Date.now();
@@ -185,27 +229,41 @@
       avatar: me.avatar, image, caption, createdAt: now,
       expiresAt: now + DAY, mine: true
     });
+    SOCIAL.actorRanking('me', 'story', { caption }).slice(0, 2).forEach(({ actor, score }, i) => {
+      if (score >= 45) queue({
+        type: 'story', actor, text: SOCIAL.storyReply(actor, state.counter + i),
+        at: now + 15000 + i * 35000
+      });
+    });
+    save();
+  }
+  function scheduleCommentReply(postId, actor, userText) {
+    if (!person(actor)) return;
+    queue({
+      type: 'reply', actor, postId,
+      replyTo: window.VIStore?.state().me.username || '你',
+      text: SOCIAL.reply(actor, userText, state.counter),
+      at: Date.now() + 12000
+    });
     save();
   }
 
-  function extraPosts() { return state.generatedPosts || []; }
-  function likeDelta(id) { return Number(state.likeDeltas[id] || 0); }
-  function comments(id) { return state.comments[id] || []; }
+  const extraPosts = () => state.generatedPosts || [];
+  const likeDelta = (id) => Number(state.likeDeltas[id] || 0);
+  const comments = (id) => state.comments[id] || [];
   function toggleCommentLike(postId, commentId) {
     const item = comments(postId).find((c) => c.id === commentId);
-    if (!item) return;
-    item.liked = !item.liked;
-    save();
+    if (item) { item.liked = !item.liked; save(); }
   }
-  function myFollowerCount() { return Number(state.myFollowers || 0); }
-  function stories() { return (state.stories || []).filter((s) => s.expiresAt > Date.now()); }
-  function notifications() { return state.notifications || []; }
-  function unreadCount() { return notifications().filter((n) => !n.read).length; }
+  const myFollowerCount = () => Number(state.myFollowers || 0) + ['kai', 'leo'].filter((id) => REL.follows(id, 'me')).length;
+  const stories = () => (state.stories || []).filter((s) => s.expiresAt > Date.now());
+  const notifications = () => state.notifications || [];
+  const unreadCount = () => notifications().filter((n) => !n.read).length;
   function markNotificationsRead() { state.notifications.forEach((n) => { n.read = true; }); save(); }
 
   window.VIWorld = {
     tick, extraPosts, likeDelta, comments, toggleCommentLike,
-    myFollowerCount, stories, addMyStory,
+    myFollowerCount, stories, addMyStory, scheduleCommentReply,
     notifications, unreadCount, markNotificationsRead
   };
 })();
