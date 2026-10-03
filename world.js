@@ -149,6 +149,20 @@
     state.lastTick = now;
     save();
   }
+  function scheduleAmbientUserInteraction(post, at) {
+    const ranked = SOCIAL.actorRanking('me', 'comment', post);
+    const pick = ranked[state.counter % Math.max(1, ranked.length)];
+    if (!pick || pick.score < 32) return;
+    queue({ type: 'like', actor: pick.actor, postId: post.id, at: at + 2 * 60000 });
+    if (pick.score >= 58 && state.counter % 2 === 0) {
+      queue({
+        type: 'comment', actor: pick.actor, postId: post.id,
+        text: SOCIAL.comment(pick.actor, post, state.counter),
+        at: at + 4 * 60000
+      });
+    }
+  }
+
   function simulateSlot(at, myPosts) {
     const owners = ['kai', 'yu', 'leo'];
     const owner = owners[state.counter % owners.length];
@@ -162,7 +176,7 @@
     }
     if (state.counter % 3 === 0) state.stories.push(makeStory(owner, at));
     const target = (myPosts || [])[0];
-    if (target) scheduleUserPost({ ...target, createdAt: at });
+    if (target) scheduleAmbientUserInteraction(target, at);
     const followCandidate = owners.find((id) =>
       !REL.follows(id, 'me') && REL.intimacy(id, 'me') >= 45
     );
