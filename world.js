@@ -28,7 +28,7 @@
     return {
       seeded: false, lastTick: Date.now(), counter: 0,
       generatedPosts: [], notifications: [], likeDeltas: {},
-      comments: {}, stories: [], seenUserPosts: []
+      comments: {}, stories: [], seenUserPosts: [], myFollowers: 0
     };
   }
   function load() {
@@ -46,6 +46,7 @@
 
   function notify(ownerId, type, text, postId = null, createdAt = Date.now()) {
     const p = person(ownerId);
+    if (type === 'follow') state.myFollowers = Number(state.myFollowers || 0) + 1;
     state.notifications.unshift({
       id: 'n-' + createdAt + '-' + state.counter++,
       ownerId, avatar: p?.avatar || '', username: p?.username || '',
@@ -158,7 +159,7 @@
     const elapsed = Math.max(0, now - Number(state.lastTick || now));
     const slots = Math.min(8, Math.floor(elapsed / SLOT));
     for (let i = slots; i > 0; i--) simulateSlot(now - (i - 1) * SLOT, myPosts);
-    state.lastTick = now;
+    if (slots > 0) state.lastTick = Number(state.lastTick || now) + slots * SLOT;
     state.generatedPosts = state.generatedPosts.filter(Boolean).slice(0, 16);
     state.stories = state.stories.filter((s) => s && s.expiresAt > now).slice(-16);
     save();
@@ -179,13 +180,21 @@
   function extraPosts() { return state.generatedPosts || []; }
   function likeDelta(id) { return Number(state.likeDeltas[id] || 0); }
   function comments(id) { return state.comments[id] || []; }
+  function toggleCommentLike(postId, commentId) {
+    const item = comments(postId).find((c) => c.id === commentId);
+    if (!item) return;
+    item.liked = !item.liked;
+    save();
+  }
+  function myFollowerCount() { return Number(state.myFollowers || 0); }
   function stories() { return (state.stories || []).filter((s) => s.expiresAt > Date.now()); }
   function notifications() { return state.notifications || []; }
   function unreadCount() { return notifications().filter((n) => !n.read).length; }
   function markNotificationsRead() { state.notifications.forEach((n) => { n.read = true; }); save(); }
 
   window.VIWorld = {
-    tick, extraPosts, likeDelta, comments, stories, addMyStory,
+    tick, extraPosts, likeDelta, comments, toggleCommentLike,
+    myFollowerCount, stories, addMyStory,
     notifications, unreadCount, markNotificationsRead
   };
 })();
