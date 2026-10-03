@@ -56,6 +56,13 @@
     document.body.classList.add('no-scroll');
   }
 
+  function openOwner(ownerId) {
+    const story = W.stories()
+      .filter((item) => item.ownerId === ownerId)
+      .sort((a, b) => b.createdAt - a.createdAt)[0];
+    if (story) openById(story.id);
+  }
+
   function showCurrent() {
     const story = queue[current];
     if (!story) return close();
@@ -156,5 +163,5 @@
     window.addEventListener('vi-state-change', render);
   }
 
-  window.VIStories = { init, render, close };
+  window.VIStories = { init, render, close, openOwner };
 })();
