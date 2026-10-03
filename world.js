@@ -103,6 +103,14 @@
       makeNpcPost('kai', now - 9 * 60000),
       makeNpcPost('yu', now - 37 * 60000)
     ].filter(Boolean);
+    if (state.generatedPosts[0]) {
+      state.likeDeltas[state.generatedPosts[0].id] = 2;
+      addWorldComment(state.generatedPosts[0].id, 'yu', now - 7 * 60000);
+    }
+    if (state.generatedPosts[1]) {
+      state.likeDeltas[state.generatedPosts[1].id] = 1;
+      addWorldComment(state.generatedPosts[1].id, 'leo', now - 31 * 60000);
+    }
     notify('leo', 'follow', '開始追蹤你', null, now - 6 * 60000);
     notify('kai', 'activity', '剛剛更新了貼文', state.generatedPosts[0]?.id, now - 9 * 60000);
     state.seeded = true;
@@ -134,6 +142,9 @@
       const post = makeNpcPost(ownerId, at);
       if (post) {
         state.generatedPosts.unshift(post);
+        const actor = owners[(owners.indexOf(ownerId) + 1) % owners.length];
+        state.likeDeltas[post.id] = 1 + (state.counter % 3);
+        addWorldComment(post.id, actor, at + 30000);
         notify(ownerId, 'activity', '更新了貼文', post.id, at);
       }
     }
