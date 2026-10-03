@@ -92,3 +92,6 @@
   .explore-header strong{display:none}
   .explore-grid{gap:2px}
 }
+
+.dm-chat-user span{display:grid;text-align:left;gap:1px}
+.dm-chat-user small{color:#8f9aa3;font-size:11px;font-weight:400}
