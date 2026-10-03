@@ -40,13 +40,13 @@
   function toggleFollow(id) { state.following[id] = !state.following[id]; save(); return state.following[id]; }
 
   function comments(id) { return state.comments[id] || []; }
-  function addComment(postId, text) {
+  function addComment(postId, text, replyTo = '') {
     const value = String(text || '').trim();
     if (!value) return;
     state.comments[postId] ||= [];
     state.comments[postId].push({
       id: 'c-' + now(), author: state.me.username,
-      text: value, createdAt: now(), liked: false, mine: true
+      text: value, replyTo, createdAt: now(), liked: false, mine: true
     });
     save();
   }
